@@ -1,0 +1,539 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>AYUSH Care - Appointments</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f4f8f6;
+            color: #333;
+        }
+
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 250px;
+            height: 100vh;
+            background: #087f5b;
+            color: white;
+            padding: 25px 15px;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .logo-icon {
+            font-size: 35px;
+        }
+
+        .logo h2 {
+            margin-top: 8px;
+        }
+
+        .logo p {
+            font-size: 12px;
+            opacity: .8;
+            margin-top: 4px;
+        }
+
+        .nav-item {
+            padding: 14px 15px;
+            margin: 7px 0;
+            border-radius: 9px;
+            cursor: pointer;
+            transition: .3s;
+        }
+
+        .nav-item:hover,
+        .nav-item.active {
+            background: rgba(255,255,255,.18);
+        }
+
+        .doctor-box {
+            position: absolute;
+            bottom: 20px;
+            left: 15px;
+            right: 15px;
+            background: rgba(255,255,255,.12);
+            padding: 14px;
+            border-radius: 10px;
+        }
+
+        .doctor-box strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .doctor-box small {
+            opacity: .8;
+        }
+
+        .main {
+            margin-left: 250px;
+            padding: 30px;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .topbar h1 {
+            color: #176b4d;
+        }
+
+        .dashboard-btn {
+            border: none;
+            background: #087f5b;
+            color: white;
+            padding: 10px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 25px;
+        }
+
+        .box {
+            background: white;
+            padding: 25px;
+            border-radius: 14px;
+            box-shadow: 0 4px 15px rgba(0,0,0,.07);
+        }
+
+        .box h2 {
+            color: #176b4d;
+            margin-bottom: 20px;
+        }
+
+        .appointment {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 17px;
+            border: 1px solid #e5e5e5;
+            border-radius: 10px;
+            margin-bottom: 12px;
+        }
+
+        .appointment-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: #e5f6ef;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 22px;
+        }
+
+        .appointment-info strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .appointment-info small {
+            color: #777;
+        }
+
+        .time {
+            text-align: right;
+        }
+
+        .time strong {
+            color: #087f5b;
+        }
+
+        .time small {
+            display: block;
+            margin-top: 5px;
+            color: #777;
+        }
+
+        .emergency {
+            border: 2px solid #e53935;
+            background: #fff2f2;
+        }
+
+        .emergency .avatar {
+            background: #ffdede;
+        }
+
+        .emergency-tag {
+            color: #d32f2f;
+            font-size: 11px;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 7px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 11px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            outline: none;
+        }
+
+        .book-btn {
+            width: 100%;
+            padding: 13px;
+            border: none;
+            border-radius: 8px;
+            background: #087f5b;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .book-btn:hover {
+            background: #066b4d;
+        }
+
+        #message {
+            text-align: center;
+            margin-top: 12px;
+            font-weight: bold;
+        }
+
+        @media (max-width: 900px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 700px) {
+            .sidebar {
+                width: 200px;
+            }
+
+            .main {
+                margin-left: 200px;
+                padding: 20px;
+            }
+
+            .appointment {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+
+            .time {
+                text-align: left;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+
+        <div class="logo">
+            <div class="logo-icon">🌿</div>
+            <h2>AYUSH Care</h2>
+            <p>Doctor Panel</p>
+        </div>
+
+        <div class="nav-item" onclick="go('doctor-dashboard.html')">
+            🏠 &nbsp; Dashboard
+        </div>
+
+        <div class="nav-item" onclick="go('patients.html')">
+            👥 &nbsp; Patients
+        </div>
+
+        <div class="nav-item" onclick="go('consultation.html')">
+            🩺 &nbsp; Consultations
+        </div>
+
+        <div class="nav-item" onclick="go('prescriptions.html')">
+            💊 &nbsp; Prescriptions
+        </div>
+
+        <div class="nav-item active" onclick="go('appointments.html')">
+            📅 &nbsp; Appointments
+        </div>
+
+        <div class="nav-item" onclick="go('reports.html')">
+            📊 &nbsp; Reports
+        </div>
+
+        <div class="nav-item" onclick="go('settings.html')">
+            ⚙️ &nbsp; Settings
+        </div>
+
+        <div class="doctor-box">
+            <strong>👨‍⚕️ Dr. Sharma</strong>
+            <small>Medical Officer</small>
+        </div>
+
+    </aside>
+
+
+    <!-- MAIN -->
+    <main class="main">
+
+        <div class="topbar">
+
+            <h1>Appointments</h1>
+
+            <button class="dashboard-btn"
+                    onclick="go('doctor-dashboard.html')">
+                ← Dashboard
+            </button>
+
+        </div>
+
+
+        <div class="layout">
+
+            <!-- APPOINTMENT LIST -->
+            <div class="box">
+
+                <h2>Today's Appointments</h2>
+
+
+                <div class="appointment">
+
+                    <div class="appointment-info">
+
+                        <div class="avatar">👨</div>
+
+                        <div>
+                            <strong>Rahul Kumar</strong>
+                            <small>General Consultation • P001</small>
+                        </div>
+
+                    </div>
+
+                    <div class="time">
+                        <strong>10:30 AM</strong>
+                        <small>Confirmed</small>
+                    </div>
+
+                </div>
+
+
+                <!-- EMERGENCY APPOINTMENT -->
+                <div class="appointment emergency">
+
+                    <div class="appointment-info">
+
+                        <div class="avatar">👩</div>
+
+                        <div>
+                            <strong>Priya Sharma</strong>
+                            <small>Urgent Consultation • P002</small>
+
+                            <div class="emergency-tag">
+                                🚨 EMERGENCY
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="time">
+                        <strong style="color:#d32f2f;">
+                            11:15 AM
+                        </strong>
+                        <small>Immediate Attention</small>
+                    </div>
+
+                </div>
+
+
+                <div class="appointment">
+
+                    <div class="appointment-info">
+
+                        <div class="avatar">👨</div>
+
+                        <div>
+                            <strong>Amit Verma</strong>
+                            <small>Follow-up • P003</small>
+                        </div>
+
+                    </div>
+
+                    <div class="time">
+                        <strong>12:00 PM</strong>
+                        <small>Confirmed</small>
+                    </div>
+
+                </div>
+
+
+                <div class="appointment">
+
+                    <div class="appointment-info">
+
+                        <div class="avatar">👩</div>
+
+                        <div>
+                            <strong>Neha Singh</strong>
+                            <small>General Consultation • P004</small>
+                        </div>
+
+                    </div>
+
+                    <div class="time">
+                        <strong>02:30 PM</strong>
+                        <small>Pending</small>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- NEW APPOINTMENT -->
+            <div class="box">
+
+                <h2>Book Appointment</h2>
+
+                <div class="form-group">
+
+                    <label>Patient Name</label>
+
+                    <select id="patient">
+
+                        <option value="">Select Patient</option>
+                        <option>Rahul Kumar</option>
+                        <option>Priya Sharma</option>
+                        <option>Amit Verma</option>
+                        <option>Neha Singh</option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Date</label>
+
+                    <input type="date" id="date">
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Time</label>
+
+                    <input type="time" id="time">
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Appointment Type</label>
+
+                    <select id="type">
+
+                        <option>General Consultation</option>
+                        <option>Follow-up</option>
+                        <option>Emergency</option>
+
+                    </select>
+
+                </div>
+
+
+                <button class="book-btn"
+                        onclick="bookAppointment()">
+                    Book Appointment
+                </button>
+
+                <p id="message"></p>
+
+            </div>
+
+        </div>
+
+    </main>
+
+
+    <script>
+
+        function go(page) {
+            window.location.href = page;
+        }
+
+
+        function bookAppointment() {
+
+            const patient =
+                document.getElementById("patient").value;
+
+            const date =
+                document.getElementById("date").value;
+
+            const time =
+                document.getElementById("time").value;
+
+            const message =
+                document.getElementById("message");
+
+
+            if (patient === "" || date === "" || time === "") {
+
+                message.style.color = "#d32f2f";
+
+                message.innerHTML =
+                    "Please fill all appointment details.";
+
+                return;
+            }
+
+
+            message.style.color = "#087f5b";
+
+            message.innerHTML =
+                "✓ Appointment booked successfully.";
+
+        }
+
+    </script>
+
+</body>
+</html>
+```

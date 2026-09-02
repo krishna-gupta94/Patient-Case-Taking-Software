@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>AYUSH Care - Login</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #e8f7f1, #f7fbf9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .login-wrapper {
+            width: 100%;
+            max-width: 950px;
+            min-height: 570px;
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+        }
+
+        /* LEFT SIDE */
+
+        .welcome-section {
+            background: linear-gradient(150deg, #087f5b, #0b9b70);
+            color: white;
+            padding: 55px 45px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .logo {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .welcome-section h1 {
+            font-size: 38px;
+            margin-bottom: 12px;
+        }
+
+        .welcome-section h3 {
+            font-size: 20px;
+            font-weight: normal;
+            margin-bottom: 25px;
+        }
+
+        .welcome-section p {
+            line-height: 1.7;
+            opacity: 0.9;
+            font-size: 15px;
+        }
+
+        .features {
+            margin-top: 30px;
+        }
+
+        .feature {
+            margin: 13px 0;
+            font-size: 15px;
+        }
+
+        /* RIGHT SIDE */
+
+        .login-section {
+            padding: 45px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .login-section h2 {
+            color: #176b4d;
+            font-size: 28px;
+            margin-bottom: 7px;
+        }
+
+        .subtitle {
+            color: #777;
+            font-size: 14px;
+            margin-bottom: 25px;
+        }
+
+        /* ROLE */
+
+        .role-title {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .role-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 22px;
+        }
+
+        .role-card {
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 15px 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.2s;
+            background: white;
+        }
+
+        .role-card:hover {
+            border-color: #087f5b;
+        }
+
+        .role-card.active {
+            border-color: #087f5b;
+            background: #e8f7f1;
+        }
+
+        .role-icon {
+            font-size: 25px;
+            margin-bottom: 7px;
+        }
+
+        .role-card strong {
+            display: block;
+            color: #333;
+        }
+
+        .role-card small {
+            color: #777;
+            display: block;
+            margin-top: 4px;
+        }
+
+        /* INPUT */
+
+        .input-group {
+            margin-bottom: 17px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 7px;
+            color: #333;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 13px;
+            border: 1px solid #d5d5d5;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .input-group input:focus {
+            border-color: #087f5b;
+            box-shadow: 0 0 0 3px rgba(8, 127, 91, 0.08);
+        }
+
+        /* BUTTON */
+
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            background: #087f5b;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-top: 5px;
+        }
+
+        .login-btn:hover {
+            background: #066b4d;
+            transform: translateY(-1px);
+        }
+
+        #message {
+            text-align: center;
+            margin-top: 14px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        /* DEMO */
+
+        .demo-box {
+            margin-top: 22px;
+            background: #f4f8f6;
+            border-radius: 9px;
+            padding: 13px;
+            font-size: 12px;
+            color: #666;
+            text-align: center;
+        }
+
+        .demo-box strong {
+            color: #087f5b;
+        }
+
+        /* MOBILE */
+
+        @media (max-width: 750px) {
+
+            body {
+                padding: 15px;
+            }
+
+            .login-wrapper {
+                grid-template-columns: 1fr;
+                max-width: 500px;
+            }
+
+            .welcome-section {
+                padding: 30px;
+                text-align: center;
+            }
+
+            .welcome-section h1 {
+                font-size: 30px;
+            }
+
+            .features {
+                display: none;
+            }
+
+            .login-section {
+                padding: 30px;
+            }
+        }
+
+        @media (max-width: 400px) {
+
+            .login-section {
+                padding: 22px;
+            }
+
+            .role-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="login-wrapper">
+
+        <!-- LEFT -->
+        <section class="welcome-section">
+
+            <div class="logo">🌿</div>
+
+            <h1>AYUSH Care</h1>
+
+            <h3>Patient Management System</h3>
+
+            <p>
+                A simple and secure healthcare management platform
+                designed to connect doctors and patients efficiently.
+            </p>
+
+            <div class="features">
+
+                <div class="feature">✓ Easy Patient Management</div>
+
+                <div class="feature">✓ Digital Consultations</div>
+
+                <div class="feature">✓ Prescription Management</div>
+
+                <div class="feature">✓ Emergency Patient Support</div>
+
+            </div>
+
+        </section>
+
+
+        <!-- RIGHT -->
+        <section class="login-section">
+
+            <h2>Welcome Back 👋</h2>
+
+            <p class="subtitle">
+                Login to continue to AYUSH Care
+            </p>
+
+
+            <p class="role-title">
+                Select Login Type
+            </p>
+
+
+            <div class="role-container">
+
+                <div
+                    class="role-card active"
+                    id="doctorRole"
+                    onclick="selectRole('doctor')"
+                >
+
+                    <div class="role-icon">👨‍⚕️</div>
+
+                    <strong>Doctor</strong>
+
+                    <small>Doctor Portal</small>
+
+                </div>
+
+
+                <div
+                    class="role-card"
+                    id="patientRole"
+                    onclick="selectRole('patient')"
+                >
+
+                    <div class="role-icon">🧑‍💼</div>
+
+                    <strong>Patient</strong>
+
+                    <small>Patient Portal</small>
+
+                </div>
+
+            </div>
+
+
+            <div class="input-group">
+
+                <label for="mobile">
+                    Mobile Number
+                </label>
+
+                <input
+                    type="text"
+                    id="mobile"
+                    placeholder="Enter mobile number"
+                    maxlength="10"
+                >
+
+            </div>
+
+
+            <div class="input-group">
+
+                <label for="password">
+                    Password
+                </label>
+
+                <input
+                    type="password"
+                    id="password"
+                    placeholder="Enter password"
+                >
+
+            </div>
+
+
+            <button
+                class="login-btn"
+                onclick="login()"
+            >
+                Login
+            </button>
+
+
+            <p id="message"></p>
+
+
+            <div class="demo-box">
+
+                <strong>Demo Login</strong><br>
+
+                Doctor: 9876543210 / 12345
+                <br>
+
+                Patient: 9123456780 / 12345
+
+            </div>
+
+        </section>
+
+    </div>
+
+
+    <script>
+
+        let selectedRole = "doctor";
+
+
+        function selectRole(role) {
+
+            selectedRole = role;
+
+            document
+                .getElementById("doctorRole")
+                .classList.remove("active");
+
+            document
+                .getElementById("patientRole")
+                .classList.remove("active");
+
+
+            if (role === "doctor") {
+
+                document
+                    .getElementById("doctorRole")
+                    .classList.add("active");
+
+            } else {
+
+                document
+                    .getElementById("patientRole")
+                    .classList.add("active");
+
+            }
+
+            document.getElementById("message").innerHTML = "";
+
+        }
+
+
+        function login() {
+
+            const mobile =
+                document.getElementById("mobile").value.trim();
+
+            const password =
+                document.getElementById("password").value.trim();
+
+            const message =
+                document.getElementById("message");
+
+
+            if (mobile === "" || password === "") {
+
+                message.style.color = "#d32f2f";
+
+                message.innerHTML =
+                    "Please enter mobile number and password.";
+
+                return;
+            }
+
+
+            if (
+                selectedRole === "doctor" &&
+                mobile === "9876543210" &&
+                password === "12345"
+            ) {
+
+                message.style.color = "#087f5b";
+
+                message.innerHTML =
+                    "Login successful! Opening Doctor Dashboard...";
+
+                setTimeout(function () {
+
+                    window.location.href =
+                        "doctor-dashboard.html";
+
+                }, 500);
+
+                return;
+            }
+
+
+            if (
+                selectedRole === "patient" &&
+                mobile === "9123456780" &&
+                password === "12345"
+            ) {
+
+                message.style.color = "#087f5b";
+
+                message.innerHTML =
+                    "Login successful! Opening Patient Dashboard...";
+
+                setTimeout(function () {
+
+                    window.location.href =
+                        "patient-dashboard.html";
+
+                }, 500);
+
+                return;
+            }
+
+
+            message.style.color = "#d32f2f";
+
+            message.innerHTML =
+                "Invalid mobile number or password.";
+
+        }
+
+    </script>
+
+</body>
+</html>
+```

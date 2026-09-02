@@ -1,0 +1,628 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AYUSH Care - Consultations</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f4f8f6;
+            color: #333;
+        }
+
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 250px;
+            height: 100vh;
+            background: #087f5b;
+            color: white;
+            padding: 25px 15px;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .logo-icon {
+            font-size: 35px;
+        }
+
+        .logo h2 {
+            margin-top: 8px;
+        }
+
+        .logo p {
+            font-size: 12px;
+            opacity: .8;
+            margin-top: 4px;
+        }
+
+        .nav-item {
+            padding: 14px 15px;
+            margin: 7px 0;
+            border-radius: 9px;
+            cursor: pointer;
+            transition: .3s;
+        }
+
+        .nav-item:hover,
+        .nav-item.active {
+            background: rgba(255,255,255,.18);
+        }
+
+        .doctor-box {
+            position: absolute;
+            bottom: 20px;
+            left: 15px;
+            right: 15px;
+            background: rgba(255,255,255,.12);
+            padding: 14px;
+            border-radius: 10px;
+        }
+
+        .doctor-box strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .doctor-box small {
+            opacity: .8;
+        }
+
+        .main {
+            margin-left: 250px;
+            padding: 30px;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .topbar h1 {
+            color: #176b4d;
+        }
+
+        .dashboard-btn {
+            border: none;
+            background: #087f5b;
+            color: white;
+            padding: 10px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .consultation-box {
+            background: white;
+            border-radius: 14px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,.07);
+        }
+
+        .section-title {
+            color: #176b4d;
+            margin-bottom: 20px;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+
+        .search-box input {
+            flex: 1;
+            padding: 13px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            outline: none;
+        }
+
+        .search-box button {
+            border: none;
+            background: #087f5b;
+            color: white;
+            padding: 0 20px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .patient-card {
+            border: 1px solid #e5e5e5;
+            border-radius: 12px;
+            padding: 18px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .patient-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #e5f6ef;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+        }
+
+        .patient-info strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .patient-info small {
+            color: #777;
+        }
+
+        .consult-btn {
+            border: none;
+            background: #087f5b;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 7px;
+            cursor: pointer;
+        }
+
+        .consult-btn:hover {
+            background: #066b4d;
+        }
+
+        .emergency {
+            border: 2px solid #e53935;
+            background: #fff3f3;
+        }
+
+        .emergency-tag {
+            color: #d32f2f;
+            font-size: 12px;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,.5);
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: white;
+            width: 600px;
+            max-width: 100%;
+            border-radius: 15px;
+            padding: 25px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h2 {
+            color: #176b4d;
+        }
+
+        .close {
+            font-size: 25px;
+            cursor: pointer;
+            color: #777;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 7px;
+            font-weight: bold;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 11px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            outline: none;
+        }
+
+        .form-group textarea {
+            height: 100px;
+            resize: vertical;
+        }
+
+        .save-btn {
+            width: 100%;
+            padding: 13px;
+            border: none;
+            background: #087f5b;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        #message {
+            text-align: center;
+            margin-top: 12px;
+            font-weight: bold;
+        }
+
+        @media (max-width: 700px) {
+            .sidebar {
+                width: 200px;
+            }
+
+            .main {
+                margin-left: 200px;
+                padding: 20px;
+            }
+
+            .patient-card {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+
+        <div class="logo">
+            <div class="logo-icon">🌿</div>
+            <h2>AYUSH Care</h2>
+            <p>Doctor Panel</p>
+        </div>
+
+        <div class="nav-item" onclick="go('doctor-dashboard.html')">
+            🏠 &nbsp; Dashboard
+        </div>
+
+        <div class="nav-item" onclick="go('patients.html')">
+            👥 &nbsp; Patients
+        </div>
+
+        <div class="nav-item active" onclick="go('consultation.html')">
+            🩺 &nbsp; Consultations
+        </div>
+
+        <div class="nav-item" onclick="go('prescriptions.html')">
+            💊 &nbsp; Prescriptions
+        </div>
+
+        <div class="nav-item" onclick="go('appointments.html')">
+            📅 &nbsp; Appointments
+        </div>
+
+        <div class="nav-item" onclick="go('reports.html')">
+            📊 &nbsp; Reports
+        </div>
+
+        <div class="nav-item" onclick="go('settings.html')">
+            ⚙️ &nbsp; Settings
+        </div>
+
+        <div class="doctor-box">
+            <strong>👨‍⚕️ Dr. Sharma</strong>
+            <small>Medical Officer</small>
+        </div>
+
+    </aside>
+
+
+    <!-- MAIN -->
+    <main class="main">
+
+        <div class="topbar">
+            <h1>Consultations</h1>
+
+            <button class="dashboard-btn"
+                    onclick="go('doctor-dashboard.html')">
+                ← Dashboard
+            </button>
+        </div>
+
+
+        <div class="consultation-box">
+
+            <h2 class="section-title">
+                Start New Consultation
+            </h2>
+
+            <div class="search-box">
+
+                <input
+                    type="text"
+                    id="search"
+                    placeholder="Search patient by name or ID..."
+                    onkeyup="searchPatients()"
+                >
+
+                <button onclick="searchPatients()">
+                    Search
+                </button>
+
+            </div>
+
+
+            <!-- PATIENT 1 -->
+            <div class="patient-card">
+
+                <div class="patient-info">
+
+                    <div class="avatar">👨</div>
+
+                    <div>
+                        <strong>Rahul Kumar</strong>
+                        <small>Age: 34 • Male • ID: P001</small>
+                    </div>
+
+                </div>
+
+                <button class="consult-btn"
+                        onclick="openConsultation('Rahul Kumar')">
+                    Start Consultation
+                </button>
+
+            </div>
+
+
+            <!-- EMERGENCY PATIENT -->
+            <div class="patient-card emergency">
+
+                <div class="patient-info">
+
+                    <div class="avatar">👩</div>
+
+                    <div>
+                        <strong>Priya Sharma</strong>
+                        <small>Age: 28 • Female • ID: P002</small>
+
+                        <div class="emergency-tag">
+                            🚨 EMERGENCY PATIENT
+                        </div>
+                    </div>
+
+                </div>
+
+                <button class="consult-btn"
+                        onclick="openConsultation('Priya Sharma')">
+                    Consult Now
+                </button>
+
+            </div>
+
+
+            <!-- PATIENT 3 -->
+            <div class="patient-card">
+
+                <div class="patient-info">
+
+                    <div class="avatar">👨</div>
+
+                    <div>
+                        <strong>Amit Verma</strong>
+                        <small>Age: 45 • Male • ID: P003</small>
+                    </div>
+
+                </div>
+
+                <button class="consult-btn"
+                        onclick="openConsultation('Amit Verma')">
+                    Start Consultation
+                </button>
+
+            </div>
+
+
+            <!-- PATIENT 4 -->
+            <div class="patient-card">
+
+                <div class="patient-info">
+
+                    <div class="avatar">👩</div>
+
+                    <div>
+                        <strong>Neha Singh</strong>
+                        <small>Age: 31 • Female • ID: P004</small>
+                    </div>
+
+                </div>
+
+                <button class="consult-btn"
+                        onclick="openConsultation('Neha Singh')">
+                    Start Consultation
+                </button>
+
+            </div>
+
+        </div>
+
+    </main>
+
+
+    <!-- CONSULTATION MODAL -->
+    <div class="modal" id="consultationModal">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <h2>New Consultation</h2>
+
+                <span class="close"
+                      onclick="closeConsultation()">
+                    ×
+                </span>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>Patient Name</label>
+
+                <input
+                    type="text"
+                    id="patientName"
+                    readonly
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>Symptoms</label>
+
+                <textarea
+                    id="symptoms"
+                    placeholder="Enter patient symptoms..."
+                ></textarea>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>Diagnosis</label>
+
+                <textarea
+                    id="diagnosis"
+                    placeholder="Enter diagnosis..."
+                ></textarea>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>Consultation Type</label>
+
+                <select id="type">
+
+                    <option>General Consultation</option>
+                    <option>Follow-up</option>
+                    <option>Emergency</option>
+
+                </select>
+
+            </div>
+
+
+            <button class="save-btn"
+                    onclick="saveConsultation()">
+                Save Consultation
+            </button>
+
+            <p id="message"></p>
+
+        </div>
+
+    </div>
+
+
+    <script>
+
+        function go(page) {
+            window.location.href = page;
+        }
+
+
+        function openConsultation(name) {
+
+            document.getElementById("patientName").value = name;
+
+            document.getElementById("consultationModal").style.display = "flex";
+
+        }
+
+
+        function closeConsultation() {
+
+            document.getElementById("consultationModal").style.display = "none";
+
+        }
+
+
+        function saveConsultation() {
+
+            const message =
+                document.getElementById("message");
+
+            message.style.color = "#087f5b";
+
+            message.innerHTML =
+                "✓ Consultation saved successfully.";
+
+            setTimeout(function() {
+
+                closeConsultation();
+
+                message.innerHTML = "";
+
+            }, 1500);
+
+        }
+
+
+        function searchPatients() {
+
+            const search =
+                document.getElementById("search").value.toLowerCase();
+
+            const patients =
+                document.querySelectorAll(".patient-card");
+
+            patients.forEach(function(patient) {
+
+                const text =
+                    patient.innerText.toLowerCase();
+
+                patient.style.display =
+                    text.includes(search) ? "flex" : "none";
+
+            });
+
+        }
+
+    </script>
+
+</body>
+</html>
+```

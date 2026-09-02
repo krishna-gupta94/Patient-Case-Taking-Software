@@ -1,0 +1,564 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>AYUSH Care - Prescriptions</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f4f8f6;
+            color: #333;
+        }
+
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 250px;
+            height: 100vh;
+            background: #087f5b;
+            color: white;
+            padding: 25px 15px;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .logo-icon {
+            font-size: 35px;
+        }
+
+        .logo h2 {
+            margin-top: 8px;
+        }
+
+        .logo p {
+            font-size: 12px;
+            opacity: .8;
+            margin-top: 4px;
+        }
+
+        .nav-item {
+            padding: 14px 15px;
+            margin: 7px 0;
+            border-radius: 9px;
+            cursor: pointer;
+            transition: .3s;
+        }
+
+        .nav-item:hover,
+        .nav-item.active {
+            background: rgba(255,255,255,.18);
+        }
+
+        .doctor-box {
+            position: absolute;
+            bottom: 20px;
+            left: 15px;
+            right: 15px;
+            background: rgba(255,255,255,.12);
+            padding: 14px;
+            border-radius: 10px;
+        }
+
+        .doctor-box strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .doctor-box small {
+            opacity: .8;
+        }
+
+        .main {
+            margin-left: 250px;
+            padding: 30px;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .topbar h1 {
+            color: #176b4d;
+        }
+
+        .dashboard-btn {
+            border: none;
+            background: #087f5b;
+            color: white;
+            padding: 10px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 25px;
+        }
+
+        .box {
+            background: white;
+            padding: 25px;
+            border-radius: 14px;
+            box-shadow: 0 4px 15px rgba(0,0,0,.07);
+        }
+
+        .box h2 {
+            color: #176b4d;
+            margin-bottom: 20px;
+        }
+
+        .patient {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: #f5faf7;
+            border-radius: 10px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .patient:hover,
+        .patient.selected {
+            border-color: #087f5b;
+        }
+
+        .avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: #dff5eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 21px;
+        }
+
+        .patient strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .patient small {
+            color: #777;
+        }
+
+        .emergency {
+            background: #fff1f1;
+            border: 2px solid #e53935;
+        }
+
+        .emergency:hover {
+            border-color: #c62828;
+        }
+
+        .emergency-tag {
+            color: #d32f2f;
+            font-size: 11px;
+            font-weight: bold;
+            margin-top: 4px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 7px;
+            font-weight: bold;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 11px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            outline: none;
+        }
+
+        .form-group textarea {
+            height: 80px;
+            resize: vertical;
+        }
+
+        .medicine-row {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .medicine-row input {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 7px;
+            outline: none;
+        }
+
+        .add-btn {
+            border: none;
+            background: #eaf8f2;
+            color: #087f5b;
+            padding: 9px 14px;
+            border-radius: 7px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-bottom: 18px;
+        }
+
+        .save-btn {
+            width: 100%;
+            padding: 13px;
+            border: none;
+            background: #087f5b;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .save-btn:hover {
+            background: #066b4d;
+        }
+
+        #message {
+            text-align: center;
+            margin-top: 12px;
+            font-weight: bold;
+        }
+
+        @media (max-width: 900px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 700px) {
+            .sidebar {
+                width: 200px;
+            }
+
+            .main {
+                margin-left: 200px;
+                padding: 20px;
+            }
+
+            .medicine-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+
+        <div class="logo">
+            <div class="logo-icon">🌿</div>
+            <h2>AYUSH Care</h2>
+            <p>Doctor Panel</p>
+        </div>
+
+        <div class="nav-item" onclick="go('doctor-dashboard.html')">
+            🏠 &nbsp; Dashboard
+        </div>
+
+        <div class="nav-item" onclick="go('patients.html')">
+            👥 &nbsp; Patients
+        </div>
+
+        <div class="nav-item" onclick="go('consultation.html')">
+            🩺 &nbsp; Consultations
+        </div>
+
+        <div class="nav-item active" onclick="go('prescriptions.html')">
+            💊 &nbsp; Prescriptions
+        </div>
+
+        <div class="nav-item" onclick="go('appointments.html')">
+            📅 &nbsp; Appointments
+        </div>
+
+        <div class="nav-item" onclick="go('reports.html')">
+            📊 &nbsp; Reports
+        </div>
+
+        <div class="nav-item" onclick="go('settings.html')">
+            ⚙️ &nbsp; Settings
+        </div>
+
+        <div class="doctor-box">
+            <strong>👨‍⚕️ Dr. Sharma</strong>
+            <small>Medical Officer</small>
+        </div>
+
+    </aside>
+
+
+    <!-- MAIN -->
+    <main class="main">
+
+        <div class="topbar">
+            <h1>Prescriptions</h1>
+
+            <button class="dashboard-btn"
+                    onclick="go('doctor-dashboard.html')">
+                ← Dashboard
+            </button>
+        </div>
+
+
+        <div class="content">
+
+            <!-- PATIENT LIST -->
+            <div class="box">
+
+                <h2>Select Patient</h2>
+
+                <div class="patient"
+                     onclick="selectPatient('Rahul Kumar', this)">
+
+                    <div class="avatar">👨</div>
+
+                    <div>
+                        <strong>Rahul Kumar</strong>
+                        <small>Age: 34 • ID: P001</small>
+                    </div>
+
+                </div>
+
+
+                <div class="patient emergency"
+                     onclick="selectPatient('Priya Sharma', this)">
+
+                    <div class="avatar">👩</div>
+
+                    <div>
+                        <strong>Priya Sharma</strong>
+                        <small>Age: 28 • ID: P002</small>
+
+                        <div class="emergency-tag">
+                            🚨 EMERGENCY PATIENT
+                        </div>
+                    </div>
+
+                </div>
+
+
+                <div class="patient"
+                     onclick="selectPatient('Amit Verma', this)">
+
+                    <div class="avatar">👨</div>
+
+                    <div>
+                        <strong>Amit Verma</strong>
+                        <small>Age: 45 • ID: P003</small>
+                    </div>
+
+                </div>
+
+
+                <div class="patient"
+                     onclick="selectPatient('Neha Singh', this)">
+
+                    <div class="avatar">👩</div>
+
+                    <div>
+                        <strong>Neha Singh</strong>
+                        <small>Age: 31 • ID: P004</small>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- PRESCRIPTION FORM -->
+            <div class="box">
+
+                <h2>Create Prescription</h2>
+
+                <div class="form-group">
+
+                    <label>Patient Name</label>
+
+                    <input
+                        type="text"
+                        id="patientName"
+                        placeholder="Select a patient"
+                        readonly
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Diagnosis</label>
+
+                    <input
+                        type="text"
+                        id="diagnosis"
+                        placeholder="Enter diagnosis"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Medicines</label>
+
+                    <div id="medicineList">
+
+                        <div class="medicine-row">
+
+                            <input
+                                type="text"
+                                placeholder="Medicine name"
+                            >
+
+                            <input
+                                type="text"
+                                placeholder="Dosage"
+                            >
+
+                            <input
+                                type="text"
+                                placeholder="Duration"
+                            >
+
+                        </div>
+
+                    </div>
+
+                    <button class="add-btn"
+                            onclick="addMedicine()">
+                        + Add Medicine
+                    </button>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Instructions</label>
+
+                    <textarea
+                        id="instructions"
+                        placeholder="Enter instructions for patient..."
+                    ></textarea>
+
+                </div>
+
+
+                <button class="save-btn"
+                        onclick="savePrescription()">
+                    Save Prescription
+                </button>
+
+                <p id="message"></p>
+
+            </div>
+
+        </div>
+
+    </main>
+
+
+    <script>
+
+        function go(page) {
+            window.location.href = page;
+        }
+
+
+        function selectPatient(name, element) {
+
+            const patients =
+                document.querySelectorAll(".patient");
+
+            patients.forEach(function(patient) {
+                patient.classList.remove("selected");
+            });
+
+            element.classList.add("selected");
+
+            document.getElementById("patientName").value = name;
+        }
+
+
+        function addMedicine() {
+
+            const list =
+                document.getElementById("medicineList");
+
+            const row =
+                document.createElement("div");
+
+            row.className = "medicine-row";
+
+            row.innerHTML = `
+                <input type="text" placeholder="Medicine name">
+                <input type="text" placeholder="Dosage">
+                <input type="text" placeholder="Duration">
+            `;
+
+            list.appendChild(row);
+        }
+
+
+        function savePrescription() {
+
+            const patient =
+                document.getElementById("patientName").value;
+
+            const message =
+                document.getElementById("message");
+
+            if (patient === "") {
+
+                message.style.color = "#d32f2f";
+
+                message.innerHTML =
+                    "Please select a patient first.";
+
+                return;
+            }
+
+            message.style.color = "#087f5b";
+
+            message.innerHTML =
+                "✓ Prescription saved successfully.";
+
+        }
+
+    </script>
+
+</body>
+</html>
+```

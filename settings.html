@@ -1,0 +1,837 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>AYUSH Care - Settings</title>
+
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f4f7f6;
+            min-height: 100vh;
+            display: flex;
+        }
+
+        /* SIDEBAR */
+
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            background: #087f5b;
+            color: white;
+            padding: 25px 15px;
+            position: fixed;
+            left: 0;
+            top: 0;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .logo h2 {
+            font-size: 24px;
+        }
+
+        .logo p {
+            font-size: 12px;
+            margin-top: 5px;
+            opacity: 0.8;
+        }
+
+        .menu button {
+            width: 100%;
+            padding: 14px;
+            margin: 5px 0;
+            border: none;
+            border-radius: 8px;
+            background: transparent;
+            color: white;
+            text-align: left;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        .menu button:hover,
+        .menu .active {
+            background: #066b4d;
+        }
+
+        /* MAIN */
+
+        .main {
+            margin-left: 250px;
+            width: calc(100% - 250px);
+            padding: 30px;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .topbar h1 {
+            color: #12372a;
+        }
+
+        .doctor {
+            background: white;
+            padding: 12px 18px;
+            border-radius: 10px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+        }
+
+        /* SETTINGS */
+
+        .settings-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .settings-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+        }
+
+        .settings-card h2 {
+            color: #12372a;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 7px;
+            color: #444;
+            font-weight: bold;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 7px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: #087f5b;
+        }
+
+        .btn {
+            padding: 11px 20px;
+            border: none;
+            border-radius: 7px;
+            background: #087f5b;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn:hover {
+            background: #066b4d;
+        }
+
+        .danger-btn {
+            background: #d32f2f;
+        }
+
+        .danger-btn:hover {
+            background: #b71c1c;
+        }
+
+        /* TOGGLE */
+
+        .toggle-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .toggle-row:last-child {
+            border-bottom: none;
+        }
+
+        .toggle-text h3 {
+            font-size: 15px;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .toggle-text p {
+            font-size: 12px;
+            color: #777;
+        }
+
+        .switch {
+            position: relative;
+            width: 48px;
+            height: 25px;
+        }
+
+        .switch input {
+            display: none;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            inset: 0;
+            background: #ccc;
+            border-radius: 30px;
+            transition: 0.3s;
+        }
+
+        .slider:before {
+            content: "";
+            position: absolute;
+            width: 19px;
+            height: 19px;
+            left: 3px;
+            top: 3px;
+            background: white;
+            border-radius: 50%;
+            transition: 0.3s;
+        }
+
+        input:checked + .slider {
+            background: #087f5b;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(23px);
+        }
+
+        /* ACCOUNT */
+
+        .account-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .profile {
+            width: 65px;
+            height: 65px;
+            border-radius: 50%;
+            background: #e8f5f1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 30px;
+        }
+
+        .account-info h3 {
+            color: #12372a;
+            margin-bottom: 5px;
+        }
+
+        .account-info p {
+            color: #777;
+            font-size: 13px;
+        }
+
+        .message {
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        /* RESPONSIVE */
+
+        @media (max-width: 900px) {
+
+            .settings-container {
+                grid-template-columns: 1fr;
+            }
+
+        }
+
+        @media (max-width: 650px) {
+
+            .sidebar {
+                width: 200px;
+            }
+
+            .main {
+                margin-left: 200px;
+                width: calc(100% - 200px);
+                padding: 20px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <!-- SIDEBAR -->
+
+    <div class="sidebar">
+
+        <div class="logo">
+
+            <h2>🌿 AYUSH Care</h2>
+
+            <p>Patient Management System</p>
+
+        </div>
+
+
+        <div class="menu">
+
+            <button onclick="go('doctor-dashboard.html')">
+                🏠 Dashboard
+            </button>
+
+            <button onclick="go('patients.html')">
+                👥 Patients
+            </button>
+
+            <button onclick="go('consultation.html')">
+                🩺 Consultations
+            </button>
+
+            <button onclick="go('prescriptions.html')">
+                💊 Prescriptions
+            </button>
+
+            <button onclick="go('appointments.html')">
+                📅 Appointments
+            </button>
+
+            <button onclick="go('reports.html')">
+                📊 Reports
+            </button>
+
+            <button class="active" onclick="go('settings.html')">
+                ⚙️ Settings
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- MAIN -->
+
+    <div class="main">
+
+
+        <div class="topbar">
+
+            <div>
+
+                <h1>Settings ⚙️</h1>
+
+                <p>Manage your account and system preferences</p>
+
+            </div>
+
+
+            <div class="doctor">
+
+                👨‍⚕️ Dr. Sharma
+
+            </div>
+
+        </div>
+
+
+        <div class="settings-container">
+
+
+            <!-- PROFILE -->
+
+            <div class="settings-card">
+
+                <h2>👨‍⚕️ Doctor Profile</h2>
+
+
+                <div class="account-info">
+
+                    <div class="profile">
+                        👨‍⚕️
+                    </div>
+
+                    <div>
+
+                        <h3>Dr. Sharma</h3>
+
+                        <p>AYUSH Care Doctor</p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Full Name</label>
+
+                    <input
+                        type="text"
+                        id="doctorName"
+                        value="Dr. Sharma"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Mobile Number</label>
+
+                    <input
+                        type="text"
+                        id="doctorMobile"
+                        value="9876543210"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Email</label>
+
+                    <input
+                        type="email"
+                        id="doctorEmail"
+                        value="doctor@ayushcare.com"
+                    >
+
+                </div>
+
+
+                <button class="btn" onclick="saveProfile()">
+                    Save Profile
+                </button>
+
+
+                <p id="profileMessage" class="message"></p>
+
+            </div>
+
+
+
+            <!-- SYSTEM SETTINGS -->
+
+            <div class="settings-card">
+
+                <h2>🔔 Notifications</h2>
+
+
+                <div class="toggle-row">
+
+                    <div class="toggle-text">
+
+                        <h3>Appointment Notifications</h3>
+
+                        <p>Receive alerts for new appointments</p>
+
+                    </div>
+
+
+                    <label class="switch">
+
+                        <input type="checkbox" checked>
+
+                        <span class="slider"></span>
+
+                    </label>
+
+                </div>
+
+
+                <div class="toggle-row">
+
+                    <div class="toggle-text">
+
+                        <h3>Emergency Alerts</h3>
+
+                        <p>Get immediate emergency patient alerts</p>
+
+                    </div>
+
+
+                    <label class="switch">
+
+                        <input type="checkbox" checked>
+
+                        <span class="slider"></span>
+
+                    </label>
+
+                </div>
+
+
+                <div class="toggle-row">
+
+                    <div class="toggle-text">
+
+                        <h3>Report Notifications</h3>
+
+                        <p>Receive notifications when reports are ready</p>
+
+                    </div>
+
+
+                    <label class="switch">
+
+                        <input type="checkbox">
+
+                        <span class="slider"></span>
+
+                    </label>
+
+                </div>
+
+
+                <div class="toggle-row">
+
+                    <div class="toggle-text">
+
+                        <h3>Dark Mode</h3>
+
+                        <p>Enable dark appearance</p>
+
+                    </div>
+
+
+                    <label class="switch">
+
+                        <input type="checkbox" id="darkMode">
+
+                        <span class="slider"></span>
+
+                    </label>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- CHANGE PASSWORD -->
+
+            <div class="settings-card">
+
+                <h2>🔐 Change Password</h2>
+
+
+                <div class="form-group">
+
+                    <label>Current Password</label>
+
+                    <input
+                        type="password"
+                        id="currentPassword"
+                        placeholder="Enter current password"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>New Password</label>
+
+                    <input
+                        type="password"
+                        id="newPassword"
+                        placeholder="Enter new password"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Confirm New Password</label>
+
+                    <input
+                        type="password"
+                        id="confirmPassword"
+                        placeholder="Confirm new password"
+                    >
+
+                </div>
+
+
+                <button class="btn" onclick="changePassword()">
+                    Update Password
+                </button>
+
+
+                <p id="passwordMessage" class="message"></p>
+
+            </div>
+
+
+
+            <!-- ACCOUNT -->
+
+            <div class="settings-card">
+
+                <h2>🛡️ Account</h2>
+
+
+                <div class="form-group">
+
+                    <label>Account Type</label>
+
+                    <select>
+
+                        <option>Doctor Account</option>
+
+                        <option>Administrator Account</option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Language</label>
+
+                    <select>
+
+                        <option>English</option>
+
+                        <option>Hindi</option>
+
+                    </select>
+
+                </div>
+
+
+                <button class="btn">
+                    Save Preferences
+                </button>
+
+
+                <br><br>
+
+
+                <button class="btn danger-btn" onclick="logout()">
+                    🚪 Logout
+                </button>
+
+
+                <p style="margin-top:15px; color:#777; font-size:12px;">
+                    AYUSH Care Patient Management System
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <script>
+
+        /* NAVIGATION */
+
+        function go(page) {
+
+            window.location.href = page;
+
+        }
+
+
+        /* SAVE PROFILE */
+
+        function saveProfile() {
+
+            const name =
+                document.getElementById("doctorName").value;
+
+            const message =
+                document.getElementById("profileMessage");
+
+
+            if (name.trim() === "") {
+
+                message.style.color = "red";
+
+                message.innerText =
+                    "Please enter your name.";
+
+                return;
+
+            }
+
+
+            message.style.color = "#087f5b";
+
+            message.innerText =
+                "✓ Profile updated successfully.";
+
+        }
+
+
+
+        /* CHANGE PASSWORD */
+
+        function changePassword() {
+
+            const current =
+                document.getElementById("currentPassword").value;
+
+            const newPass =
+                document.getElementById("newPassword").value;
+
+            const confirm =
+                document.getElementById("confirmPassword").value;
+
+            const message =
+                document.getElementById("passwordMessage");
+
+
+            if (
+                current === "" ||
+                newPass === "" ||
+                confirm === ""
+            ) {
+
+                message.style.color = "red";
+
+                message.innerText =
+                    "Please fill all password fields.";
+
+                return;
+
+            }
+
+
+            if (newPass !== confirm) {
+
+                message.style.color = "red";
+
+                message.innerText =
+                    "New passwords do not match.";
+
+                return;
+
+            }
+
+
+            if (newPass.length < 5) {
+
+                message.style.color = "red";
+
+                message.innerText =
+                    "Password must contain at least 5 characters.";
+
+                return;
+
+            }
+
+
+            message.style.color = "#087f5b";
+
+            message.innerText =
+                "✓ Password updated successfully.";
+
+        }
+
+
+
+        /* LOGOUT */
+
+        function logout() {
+
+            const confirmLogout =
+                confirm("Are you sure you want to logout?");
+
+
+            if (confirmLogout) {
+
+                window.location.href = "index.html";
+
+            }
+
+        }
+
+
+
+        /* DARK MODE */
+
+        document
+            .getElementById("darkMode")
+            .addEventListener("change", function () {
+
+                if (this.checked) {
+
+                    document.body.style.background = "#1f2933";
+
+                    document.querySelector(".main").style.color = "white";
+
+                    document
+                        .querySelectorAll(".settings-card, .doctor")
+                        .forEach(function(card) {
+
+                            card.style.background = "#263238";
+                            card.style.color = "white";
+
+                        });
+
+                } else {
+
+                    document.body.style.background = "#f4f7f6";
+
+                    document.querySelector(".main").style.color = "black";
+
+                    document
+                        .querySelectorAll(".settings-card, .doctor")
+                        .forEach(function(card) {
+
+                            card.style.background = "white";
+                            card.style.color = "black";
+
+                        });
+
+                }
+
+            });
+
+    </script>
+
+
+</body>
+
+</html>
+```

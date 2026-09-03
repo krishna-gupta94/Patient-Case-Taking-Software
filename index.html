@@ -404,6 +404,7 @@
     </div>
 
 
+    <script src="api.js"></script>
     <script>
 
         let selectedRole = "doctor";
@@ -441,7 +442,7 @@
         }
 
 
-        function login() {
+        async function login() {
 
             const mobile =
                 document.getElementById("mobile").value.trim();
@@ -452,68 +453,44 @@
             const message =
                 document.getElementById("message");
 
-
             if (mobile === "" || password === "") {
-
                 message.style.color = "#d32f2f";
-
-                message.innerHTML =
-                    "Please enter mobile number and password.";
-
+                message.innerHTML = "Please enter mobile number and password.";
                 return;
             }
 
+            message.style.color = "#333";
+            message.innerHTML = "Authenticating...";
 
-            if (
-                selectedRole === "doctor" &&
-                mobile === "9876543210" &&
-                password === "12345"
-            ) {
+            const response = await api.post('/auth/login', { mobile, password });
+
+            if (response.status === 200 && response.data.success) {
+                const user = response.data.data.user;
+                
+                // Store authentication state
+                localStorage.setItem('ayush_token', response.data.data.token);
+                localStorage.setItem('ayush_user', JSON.stringify(user));
 
                 message.style.color = "#087f5b";
-
-                message.innerHTML =
-                    "Login successful! Opening Doctor Dashboard...";
+                message.innerHTML = "Login successful! Redirecting...";
 
                 setTimeout(function () {
-
-                    window.location.href =
-                        "doctor-dashboard.html";
-
+                    // Redirect based on backend trusted role
+                    if (user.role === 'Doctor') {
+                        window.location.href = "doctor-dashboard.html";
+                    } else if (user.role === 'Patient') {
+                        window.location.href = "patient-dashboard.html";
+                    } else {
+                        window.location.href = "index.html";
+                    }
                 }, 500);
 
-                return;
+            } else {
+                message.style.color = "#d32f2f";
+                message.innerHTML = response.data.message || "Invalid mobile number or password.";
             }
-
-
-            if (
-                selectedRole === "patient" &&
-                mobile === "9123456780" &&
-                password === "12345"
-            ) {
-
-                message.style.color = "#087f5b";
-
-                message.innerHTML =
-                    "Login successful! Opening Patient Dashboard...";
-
-                setTimeout(function () {
-
-                    window.location.href =
-                        "patient-dashboard.html";
-
-                }, 500);
-
-                return;
-            }
-
-
-            message.style.color = "#d32f2f";
-
-            message.innerHTML =
-                "Invalid mobile number or password.";
-
         }
+
 
     </script>
 

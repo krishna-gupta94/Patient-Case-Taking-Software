@@ -10,6 +10,8 @@ function logout() {
     const confirmLogout = confirm("Are you sure you want to logout?");
     
     if (confirmLogout) {
+        localStorage.removeItem('ayush_token');
+        localStorage.removeItem('ayush_user');
         window.location.href = "index.html";
     }
 }

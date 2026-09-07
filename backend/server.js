@@ -28,7 +28,7 @@ const app = express();
 // Only allow origin specified in .env, fallback to strict local if missing
 const corsOrigin = process.env.CORS_ORIGIN || 'http://127.0.0.1:5500';
 app.use(cors({
-    origin: corsOrigin === '*' ? '*' : corsOrigin
+    origin: corsOrigin
 }));
 app.use(express.json()); // Parse JSON bodies
 
@@ -68,4 +68,8 @@ const startServer = async () => {
     });
 };
 
-startServer();
+if (require.main === module) {
+    startServer();
+}
+
+module.exports = app;

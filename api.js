@@ -1,4 +1,10 @@
-const API_BASE_URL = 'http://127.0.0.1:5000';
+const localApiOrigin = 'http://127.0.0.1:5000';
+const configuredApiOrigin = window.NIVARA_API_URL;
+const isLocalFrontend = ['localhost', '127.0.0.1'].includes(window.location.hostname)
+    || window.location.protocol === 'file:';
+const API_BASE_URL = (configuredApiOrigin || (isLocalFrontend ? localApiOrigin : window.location.origin))
+    .replace(/\/+$/, '')
+    .replace(/\/api$/, '');
 
 const api = {
     request: async (endpoint, options = {}) => {

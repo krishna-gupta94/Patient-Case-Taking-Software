@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="en">
 
@@ -6,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>AYUSH Care - Settings</title>
+    <title>NIVARA - Settings</title>
 
     <style>
 
@@ -262,6 +261,33 @@
             font-weight: bold;
         }
 
+        body.dark-mode .topbar h1,
+        body.dark-mode .settings-card h2,
+        body.dark-mode .account-info h3 {
+            color: #f1f5f9;
+        }
+
+        body.dark-mode .topbar p,
+        body.dark-mode .form-group label,
+        body.dark-mode .toggle-text h3 {
+            color: #e5e7eb;
+        }
+
+        body.dark-mode .toggle-text p,
+        body.dark-mode .account-info p,
+        body.dark-mode .settings-card > p {
+            color: #cbd5e1 !important;
+        }
+
+        body.dark-mode .form-group input,
+        body.dark-mode .form-group select {
+            color: #1f2933;
+        }
+
+        body.dark-mode .form-group input::placeholder {
+            color: #64748b;
+        }
+
         /* RESPONSIVE */
 
         @media (max-width: 900px) {
@@ -288,7 +314,9 @@
 
     </style>
 
+    <link rel="stylesheet" href="style.css">
     <script src="api.js"></script>
+    <script src="script.js"></script>
     <script>checkAuthGuard();</script>
 </head>
 
@@ -302,7 +330,7 @@
 
         <div class="logo">
 
-            <h2>🌿 AYUSH Care</h2>
+            <h2>🌿 NIVARA</h2>
 
             <p>Patient Management System</p>
 
@@ -389,7 +417,7 @@
 
                         <h3>Dr. Sharma</h3>
 
-                        <p>AYUSH Care Doctor</p>
+                        <p>NIVARA Doctor</p>
 
                     </div>
 
@@ -429,7 +457,7 @@
                     <input
                         type="email"
                         id="doctorEmail"
-                        value="doctor@ayushcare.com"
+                        value="doctor@nivaracare.com"
                     >
 
                 </div>
@@ -652,7 +680,7 @@
 
 
                 <p style="margin-top:15px; color:#777; font-size:12px;">
-                    AYUSH Care Patient Management System
+                    NIVARA Patient Management System
                 </p>
 
             </div>
@@ -782,6 +810,8 @@
 
             if (confirmLogout) {
 
+                localStorage.removeItem('ayush_token');
+                localStorage.removeItem('ayush_user');
                 window.location.href = "index.html";
 
             }
@@ -790,51 +820,10 @@
 
 
 
-        /* DARK MODE */
-
-        document
-            .getElementById("darkMode")
-            .addEventListener("change", function () {
-
-                if (this.checked) {
-
-                    document.body.style.background = "#1f2933";
-
-                    document.querySelector(".main").style.color = "white";
-
-                    document
-                        .querySelectorAll(".settings-card, .doctor")
-                        .forEach(function(card) {
-
-                            card.style.background = "#263238";
-                            card.style.color = "white";
-
-                        });
-
-                } else {
-
-                    document.body.style.background = "#f4f7f6";
-
-                    document.querySelector(".main").style.color = "black";
-
-                    document
-                        .querySelectorAll(".settings-card, .doctor")
-                        .forEach(function(card) {
-
-                            card.style.background = "white";
-                            card.style.color = "black";
-
-                        });
-
-                }
-
-            });
-
     </script>
 
 
 </body>
 
 </html>
-```
 

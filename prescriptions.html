@@ -1,11 +1,10 @@
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>AYUSH Care - Prescriptions</title>
+    <title>NIVARA - Prescriptions</title>
 
     <style>
         * {
@@ -270,7 +269,9 @@
             }
         }
     </style>
+    <link rel="stylesheet" href="style.css">
     <script src="api.js"></script>
+    <script src="script.js"></script>
     <script>checkAuthGuard();</script>
 </head>
 
@@ -281,7 +282,7 @@
 
         <div class="logo">
             <div class="logo-icon">🌿</div>
-            <h2>AYUSH Care</h2>
+            <h2>NIVARA</h2>
             <p>Doctor Panel</p>
         </div>
 
@@ -341,59 +342,8 @@
 
                 <h2>Select Patient</h2>
 
-                <div class="patient"
-                     onclick="selectPatient('Rahul Kumar', this)">
-
-                    <div class="avatar">👨</div>
-
-                    <div>
-                        <strong>Rahul Kumar</strong>
-                        <small>Age: 34 • ID: P001</small>
-                    </div>
-
-                </div>
-
-
-                <div class="patient emergency"
-                     onclick="selectPatient('Priya Sharma', this)">
-
-                    <div class="avatar">👩</div>
-
-                    <div>
-                        <strong>Priya Sharma</strong>
-                        <small>Age: 28 • ID: P002</small>
-
-                        <div class="emergency-tag">
-                            🚨 EMERGENCY PATIENT
-                        </div>
-                    </div>
-
-                </div>
-
-
-                <div class="patient"
-                     onclick="selectPatient('Amit Verma', this)">
-
-                    <div class="avatar">👨</div>
-
-                    <div>
-                        <strong>Amit Verma</strong>
-                        <small>Age: 45 • ID: P003</small>
-                    </div>
-
-                </div>
-
-
-                <div class="patient"
-                     onclick="selectPatient('Neha Singh', this)">
-
-                    <div class="avatar">👩</div>
-
-                    <div>
-                        <strong>Neha Singh</strong>
-                        <small>Age: 31 • ID: P004</small>
-                    </div>
-
+                <div id="patient-list">
+                    Loading patients...
                 </div>
 
             </div>
@@ -479,7 +429,8 @@
 
 
                 <button class="save-btn"
-                        onclick="savePrescription()">
+                    id="savePrescriptionButton"
+                    onclick="savePrescription()">
                     Save Prescription
                 </button>
 
@@ -496,6 +447,43 @@
 
         function go(page) {
             window.location.href = page;
+        }
+
+
+        function escapeHTML(value) {
+            return String(value)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+
+        async function loadPatients() {
+            const list = document.getElementById("patient-list");
+            const response = await api.get('/api/patients');
+
+            if (response.status < 200 || response.status >= 300 || !response.data.success) {
+                list.textContent = "Unable to load patients.";
+                return;
+            }
+
+            const patients = response.data.data || [];
+            list.innerHTML = patients.map(function(patient) {
+                const isEmergency = patient.status === "Follow-up";
+                const avatar = patient.gender === "Female" ? "👩" : "👨";
+
+                return `
+                    <div class="patient${isEmergency ? " emergency" : ""}" data-patient-name="${escapeHTML(patient.name)}" onclick="selectPatient(this.dataset.patientName, this)">
+                        <div class="avatar">${avatar}</div>
+                        <div>
+                            <strong>${escapeHTML(patient.name)}</strong>
+                            <small>${escapeHTML(patient.patient_code)}</small>
+                            ${isEmergency ? '<div class="emergency-tag">🚨 EMERGENCY PATIENT</div>' : ""}
+                        </div>
+                    </div>`;
+            }).join("");
         }
 
 
@@ -534,13 +522,15 @@
         }
 
 
-        function savePrescription() {
+        async function savePrescription() {
 
             const patient =
                 document.getElementById("patientName").value;
 
             const message =
                 document.getElementById("message");
+            const saveButton =
+                document.getElementById("savePrescriptionButton");
 
             if (patient === "") {
 
@@ -552,16 +542,59 @@
                 return;
             }
 
-            message.style.color = "#087f5b";
+            const medicineRows =
+                document.querySelectorAll("#medicineList .medicine-row");
+            const medicines = Array.from(medicineRows).map(function(row) {
+                const fields = row.querySelectorAll("input");
+                return {
+                    name: fields[0].value.trim(),
+                    dosage: fields[1].value.trim(),
+                    duration: fields[2].value.trim()
+                };
+            });
 
-            message.innerHTML =
-                "✓ Prescription saved successfully.";
+            if (!document.getElementById("diagnosis").value.trim()) {
+                message.style.color = "#d32f2f";
+                message.innerHTML = "Diagnosis is required.";
+                return;
+            }
+
+            if (medicines.length === 0 || medicines.some(function(medicine) {
+                return !medicine.name || !medicine.dosage || !medicine.duration;
+            })) {
+                message.style.color = "#d32f2f";
+                message.innerHTML = "Complete every medicine name, dosage, and duration.";
+                return;
+            }
+
+            saveButton.disabled = true;
+            saveButton.textContent = "Saving...";
+
+            const response = await api.post("/api/prescriptions", {
+                patient: patient,
+                diagnosis: document.getElementById("diagnosis").value.trim(),
+                instructions: document.getElementById("instructions").value.trim(),
+                medicines: medicines
+            });
+
+            if (response.status >= 200 && response.status < 300 && response.data.success === true) {
+                message.style.color = "#087f5b";
+                message.innerHTML = "✓ Prescription saved successfully.";
+            } else {
+                message.style.color = "#d32f2f";
+                message.innerHTML = response.data.message || "Unable to save prescription.";
+            }
+
+            saveButton.disabled = false;
+            saveButton.textContent = "Save Prescription";
 
         }
+
+
+        loadPatients();
 
     </script>
 
 </body>
 </html>
-```
 

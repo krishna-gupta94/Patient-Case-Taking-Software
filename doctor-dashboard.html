@@ -1,10 +1,9 @@
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AYUSH Care - Doctor Dashboard</title>
+    <title>NIVARA - Doctor Dashboard</title>
 
     <style>
         * {
@@ -295,7 +294,9 @@
             }
         }
     </style>
+    <link rel="stylesheet" href="style.css">
     <script src="api.js"></script>
+    <script src="script.js"></script>
     <script>checkAuthGuard();</script>
 </head>
 
@@ -306,7 +307,7 @@
 
         <div class="logo">
             <div class="logo-icon">🌿</div>
-            <h2>AYUSH Care</h2>
+            <h2>NIVARA</h2>
             <p>Doctor Panel</p>
         </div>
 
@@ -372,25 +373,25 @@
 
             <div class="card">
                 <div class="card-icon">👥</div>
-                <h3>248</h3>
+                <h3 id="total-patients">--</h3>
                 <p>Total Patients</p>
             </div>
 
             <div class="card">
                 <div class="card-icon">🩺</div>
-                <h3>32</h3>
+                <h3 id="todays-consultations">--</h3>
                 <p>Today's Consultations</p>
             </div>
 
             <div class="card">
                 <div class="card-icon">📅</div>
-                <h3>14</h3>
+                <h3 id="todays-appointments">--</h3>
                 <p>Today's Appointments</p>
             </div>
 
             <div class="card">
                 <div class="card-icon">🚨</div>
-                <h3>3</h3>
+                <h3 id="emergency-cases">--</h3>
                 <p>Emergency Cases</p>
             </div>
 
@@ -412,76 +413,7 @@
                 </div>
 
 
-                <div class="patient">
-
-                    <div class="patient-info">
-
-                        <div class="avatar">👨</div>
-
-                        <div>
-                            <strong>Rahul Kumar</strong>
-                            <small>Age: 34 • Male</small>
-                        </div>
-
-                    </div>
-
-                    <span class="status">Active</span>
-
-                </div>
-
-
-                <div class="patient">
-
-                    <div class="patient-info">
-
-                        <div class="avatar">👩</div>
-
-                        <div>
-                            <strong>Priya Sharma</strong>
-                            <small>Age: 28 • Female</small>
-                        </div>
-
-                    </div>
-
-                    <span class="status">Active</span>
-
-                </div>
-
-
-                <div class="patient">
-
-                    <div class="patient-info">
-
-                        <div class="avatar">👨</div>
-
-                        <div>
-                            <strong>Amit Verma</strong>
-                            <small>Age: 45 • Male</small>
-                        </div>
-
-                    </div>
-
-                    <span class="status">Follow-up</span>
-
-                </div>
-
-
-                <div class="patient">
-
-                    <div class="patient-info">
-
-                        <div class="avatar">👩</div>
-
-                        <div>
-                            <strong>Neha Singh</strong>
-                            <small>Age: 31 • Female</small>
-                        </div>
-
-                    </div>
-
-                    <span class="status">Active</span>
-
-                </div>
+                <div id="recent-patients">Loading...</div>
 
             </div>
 
@@ -494,25 +426,7 @@
                 </div>
 
 
-                <div class="appointment">
-                    <strong>Rahul Kumar</strong>
-                    <span>🕐 10:30 AM</span>
-                </div>
-
-                <div class="appointment">
-                    <strong>Priya Sharma</strong>
-                    <span>🕐 11:15 AM</span>
-                </div>
-
-                <div class="appointment">
-                    <strong>Amit Verma</strong>
-                    <span>🕐 12:00 PM</span>
-                </div>
-
-                <div class="appointment">
-                    <strong>Neha Singh</strong>
-                    <span>🕐 02:30 PM</span>
-                </div>
+                <div id="upcoming-appointments">Loading...</div>
 
             </div>
 
@@ -524,10 +438,7 @@
 
             <h3>🚨 Emergency Cases</h3>
 
-            <p>
-                3 patients require immediate attention.
-                Please review emergency cases from the Patients section.
-            </p>
+            <p id="emergency-message">Loading...</p>
 
         </div>
 
@@ -535,6 +446,77 @@
 
 
     <script>
+
+        const dashboardElements = {
+            totalPatients: document.getElementById('total-patients'),
+            todaysConsultations: document.getElementById('todays-consultations'),
+            todaysAppointments: document.getElementById('todays-appointments'),
+            emergencyCases: document.getElementById('emergency-cases'),
+            recentPatients: document.getElementById('recent-patients'),
+            upcomingAppointments: document.getElementById('upcoming-appointments'),
+            emergencyMessage: document.getElementById('emergency-message')
+        };
+
+        const renderRecentPatients = (patients) => {
+            if (patients.length === 0) {
+                dashboardElements.recentPatients.textContent = 'No patients found.';
+                return;
+            }
+
+            dashboardElements.recentPatients.innerHTML = patients.map((patient) => `
+                <div class="patient">
+                    <div class="patient-info">
+                        <div class="avatar">${patient.gender === 'Female' ? '👩' : '👨'}</div>
+                        <div>
+                            <strong>${patient.name}</strong>
+                            <small>Age: ${patient.age} • ${patient.gender} • ${patient.patientCode}</small>
+                        </div>
+                    </div>
+                    <span class="status">${patient.status}</span>
+                </div>
+            `).join('');
+        };
+
+        const renderUpcomingAppointments = (appointments) => {
+            if (appointments.length === 0) {
+                dashboardElements.upcomingAppointments.textContent = 'No upcoming appointments.';
+                return;
+            }
+
+            dashboardElements.upcomingAppointments.innerHTML = appointments.map((appointment) => `
+                <div class="appointment">
+                    <strong>${appointment.patientName}</strong>
+                    <span>🕐 ${appointment.time}</span>
+                </div>
+            `).join('');
+        };
+
+        const loadDoctorDashboard = async () => {
+            const response = await api.get('/api/dashboard/doctor');
+
+            if (response.status !== 200 || !response.data.success) {
+                throw new Error('Dashboard data could not be loaded.');
+            }
+
+            const dashboard = response.data.data;
+            dashboardElements.totalPatients.textContent = dashboard.totalPatients;
+            dashboardElements.todaysConsultations.textContent = dashboard.todaysConsultations;
+            dashboardElements.todaysAppointments.textContent = dashboard.todaysAppointments;
+            dashboardElements.emergencyCases.textContent = dashboard.emergencyCases;
+            dashboardElements.emergencyMessage.textContent =
+                `${dashboard.emergencyCases} patients require immediate attention. Please review emergency cases from the Patients section.`;
+            renderRecentPatients(dashboard.recentPatients);
+            renderUpcomingAppointments(dashboard.upcomingAppointments);
+        };
+
+        loadDoctorDashboard().catch(() => {
+            dashboardElements.recentPatients.textContent = 'Unable to load patients.';
+            dashboardElements.upcomingAppointments.textContent = 'Unable to load appointments.';
+            dashboardElements.emergencyMessage.textContent = 'Unable to load emergency case information.';
+            document.querySelectorAll('.card h3').forEach((element) => {
+                element.textContent = '--';
+            });
+        });
 
         function go(page) {
             window.location.href = page;
@@ -544,5 +526,4 @@
 
 </body>
 </html>
-```
 

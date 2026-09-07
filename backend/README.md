@@ -1,6 +1,6 @@
-# AYUSH Care API Backend
+# NIVARA API Backend
 
-This is the Node.js + Express backend foundation for the AYUSH Care application.
+This is the Node.js + Express backend foundation for the NIVARA application.
 
 ## Requirements
 
@@ -51,7 +51,7 @@ Expected response:
 ```json
 {
   "success": true,
-  "message": "AYUSH Care API is running",
+  "message": "NIVARA API is running",
   "data": {
     "database": "connected"
   }
@@ -60,7 +60,7 @@ Expected response:
 
 ## Authentication
 
-AYUSH Care uses JSON Web Tokens (JWT) for stateless authentication.
+NIVARA uses JSON Web Tokens (JWT) for stateless authentication.
 - **Login Endpoint:** `POST /api/auth/login` (Expects `mobile` and `password`)
 - **Profile Endpoint:** `GET /api/auth/me` (Requires `Authorization: Bearer <token>`)
 

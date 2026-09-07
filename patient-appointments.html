@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NIVARA - My Appointments</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+        body { background: #f4f7f6; color: #333; }
+        .sidebar { position: fixed; left: 0; top: 0; width: 250px; height: 100vh; background: #087f5b; color: white; padding: 25px 15px; }
+        .logo { text-align: center; margin-bottom: 35px; }
+        .logo-icon { font-size: 38px; }
+        .logo h2 { margin-top: 8px; }
+        .logo p { font-size: 12px; opacity: .8; margin-top: 5px; }
+        .menu button { width: 100%; padding: 14px; margin: 5px 0; border: none; border-radius: 8px; background: transparent; color: white; text-align: left; font-size: 15px; cursor: pointer; }
+        .menu button:hover, .menu button.active { background: #066b4d; }
+        .main { margin-left: 250px; padding: 30px; }
+        .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        .topbar h1 { color: #12372a; margin-bottom: 5px; }
+        .topbar p { color: #777; }
+        .patient-profile { background: white; padding: 12px 18px; border-radius: 10px; box-shadow: 0 3px 12px rgba(0,0,0,.08); }
+        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 3px 12px rgba(0,0,0,.08); }
+        .card h2 { color: #12372a; margin-bottom: 20px; }
+        .appointment { display: flex; justify-content: space-between; align-items: center; padding: 18px 0; border-bottom: 1px solid #eee; }
+        .appointment:last-child { border-bottom: none; }
+        .appointment h3 { margin-bottom: 6px; }
+        .appointment p { color: #777; font-size: 13px; margin: 4px 0; }
+        .appointment-time { background: #e8f5f1; color: #087f5b; padding: 8px 12px; border-radius: 7px; font-weight: bold; font-size: 13px; text-align: right; }
+        .empty, .error { color: #777; padding: 10px 0; }
+        .error { color: #c62828; }
+        @media (max-width: 700px) {
+            .sidebar { width: 200px; }
+            .main { margin-left: 200px; padding: 20px; }
+            .topbar, .appointment { align-items: flex-start; flex-direction: column; gap: 12px; }
+            .appointment-time { text-align: left; }
+        }
+    </style>
+    <link rel="stylesheet" href="style.css">
+    <script src="api.js"></script>
+    <script src="script.js"></script>
+    <script>checkAuthGuard();</script>
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="logo">
+            <div class="logo-icon">&#127807;</div>
+            <h2>NIVARA</h2>
+            <p>Patient Portal</p>
+        </div>
+        <div class="menu">
+            <button onclick="go('patient-dashboard.html')">&#127968; &nbsp; Dashboard</button>
+            <button class="active" onclick="go('patient-appointments.html')">&#128197; &nbsp; My Appointments</button>
+            <button onclick="go('patient-prescriptions.html')">&#128138; &nbsp; My Prescriptions</button>
+            <button onclick="go('patient-reports.html')">&#128202; &nbsp; My Reports</button>
+            <button onclick="logout()">&#128682; &nbsp; Logout</button>
+        </div>
+    </aside>
+    <main class="main">
+        <div class="topbar">
+            <div>
+                <h1>My Appointments</h1>
+                <p>View your scheduled appointments</p>
+            </div>
+            <div class="patient-profile" id="patientName">Patient Portal</div>
+        </div>
+        <section class="card">
+            <h2>Appointments</h2>
+            <div id="appointments"><p class="empty">Loading appointments...</p></div>
+        </section>
+    </main>
+    <script>
+        function go(page) {
+            window.location.href = page;
+        }
+
+        function logout() {
+            localStorage.removeItem('ayush_token');
+            localStorage.removeItem('ayush_user');
+            window.location.href = 'index.html';
+        }
+
+        const formatDate = (date) => new Date(date).toLocaleDateString(undefined, {
+            year: 'numeric', month: 'short', day: 'numeric'
+        });
+
+        const formatTime = (time) => new Date(`1970-01-01T${time}`).toLocaleTimeString(undefined, {
+            hour: 'numeric', minute: '2-digit'
+        });
+
+        const loadAppointments = async () => {
+            const [meResponse, appointmentsResponse] = await Promise.all([
+                api.get('/api/auth/me'),
+                api.get('/api/patient-portal/appointments')
+            ]);
+            const container = document.getElementById('appointments');
+            const user = meResponse.data && meResponse.data.data;
+
+            if (user) {
+                document.getElementById('patientName').textContent = user.name;
+            }
+
+            if (appointmentsResponse.status !== 200 || !appointmentsResponse.data.success) {
+                container.innerHTML = '<p class="error">Unable to load appointments.</p>';
+                return;
+            }
+
+            const appointments = appointmentsResponse.data.data;
+            if (appointments.length === 0) {
+                container.innerHTML = '<p class="empty">No appointments found.</p>';
+                return;
+            }
+
+            container.innerHTML = appointments.map((appointment) => `
+                <article class="appointment">
+                    <div>
+                        <h3>${appointment.type}</h3>
+                        <p>Doctor: ${appointment.doctorName}</p>
+                        <p>${formatDate(appointment.date)} &middot; ${formatTime(appointment.time)}</p>
+                    </div>
+                    <div class="appointment-time">${appointment.status}</div>
+                </article>
+            `).join('');
+        };
+
+        loadAppointments();
+    </script>
+</body>
+</html>

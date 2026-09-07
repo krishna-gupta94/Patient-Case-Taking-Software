@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NIVARA - My Prescriptions</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+        body { background: #f4f7f6; color: #333; }
+        .sidebar { position: fixed; left: 0; top: 0; width: 250px; height: 100vh; background: #087f5b; color: white; padding: 25px 15px; }
+        .logo { text-align: center; margin-bottom: 35px; }
+        .logo-icon { font-size: 38px; }
+        .logo h2 { margin-top: 8px; }
+        .logo p { font-size: 12px; opacity: .8; margin-top: 5px; }
+        .menu button { width: 100%; padding: 14px; margin: 5px 0; border: none; border-radius: 8px; background: transparent; color: white; text-align: left; font-size: 15px; cursor: pointer; }
+        .menu button:hover, .menu button.active { background: #066b4d; }
+        .main { margin-left: 250px; padding: 30px; }
+        .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        .topbar h1 { color: #12372a; margin-bottom: 5px; }
+        .topbar p { color: #777; }
+        .patient-profile { background: white; padding: 12px 18px; border-radius: 10px; box-shadow: 0 3px 12px rgba(0,0,0,.08); }
+        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 3px 12px rgba(0,0,0,.08); margin-bottom: 20px; }
+        .card h2 { color: #12372a; margin-bottom: 20px; }
+        .prescription { padding: 18px 0; border-bottom: 1px solid #eee; }
+        .prescription:last-child { border-bottom: none; }
+        .prescription-header { display: flex; justify-content: space-between; gap: 16px; margin-bottom: 12px; }
+        .prescription h3 { color: #12372a; margin-bottom: 6px; }
+        .prescription p { color: #666; font-size: 13px; margin: 5px 0; }
+        .date { color: #087f5b; font-weight: bold; font-size: 13px; white-space: nowrap; }
+        .medicine { background: #f8faf9; padding: 12px 14px; border-radius: 8px; margin-top: 8px; }
+        .medicine strong { color: #087f5b; }
+        .empty, .error { color: #777; padding: 10px 0; }
+        .error { color: #c62828; }
+        @media (max-width: 700px) {
+            .sidebar { width: 200px; }
+            .main { margin-left: 200px; padding: 20px; }
+            .topbar, .prescription-header { align-items: flex-start; flex-direction: column; gap: 12px; }
+        }
+    </style>
+    <link rel="stylesheet" href="style.css">
+    <script src="api.js"></script>
+    <script src="script.js"></script>
+    <script>checkAuthGuard();</script>
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="logo">
+            <div class="logo-icon">&#127807;</div>
+            <h2>NIVARA</h2>
+            <p>Patient Portal</p>
+        </div>
+        <div class="menu">
+            <button onclick="go('patient-dashboard.html')">&#127968; &nbsp; Dashboard</button>
+            <button onclick="go('patient-appointments.html')">&#128197; &nbsp; My Appointments</button>
+            <button class="active" onclick="go('patient-prescriptions.html')">&#128138; &nbsp; My Prescriptions</button>
+            <button onclick="go('patient-reports.html')">&#128202; &nbsp; My Reports</button>
+            <button onclick="logout()">&#128682; &nbsp; Logout</button>
+        </div>
+    </aside>
+    <main class="main">
+        <div class="topbar">
+            <div>
+                <h1>My Prescriptions</h1>
+                <p>View your prescribed medicines and instructions</p>
+            </div>
+            <div class="patient-profile" id="patientName">Patient Portal</div>
+        </div>
+        <section class="card">
+            <h2>Prescriptions</h2>
+            <div id="prescriptions"><p class="empty">Loading prescriptions...</p></div>
+        </section>
+    </main>
+    <script>
+        function go(page) {
+            window.location.href = page;
+        }
+
+        function logout() {
+            localStorage.removeItem('ayush_token');
+            localStorage.removeItem('ayush_user');
+            window.location.href = 'index.html';
+        }
+
+        function escapeHtml(value) {
+            return String(value ?? '').replace(/[&<>'"]/g, (character) => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+            }[character]));
+        }
+
+        function formatDate(date) {
+            return new Date(date).toLocaleDateString(undefined, {
+                year: 'numeric', month: 'short', day: 'numeric'
+            });
+        }
+
+        async function loadPrescriptions() {
+            const [meResponse, prescriptionsResponse] = await Promise.all([
+                api.get('/api/auth/me'),
+                api.get('/api/patient-portal/prescriptions')
+            ]);
+            const container = document.getElementById('prescriptions');
+            const user = meResponse.data && meResponse.data.data;
+
+            if (user) {
+                document.getElementById('patientName').textContent = user.name;
+            }
+
+            if (prescriptionsResponse.status !== 200 || !prescriptionsResponse.data.success) {
+                container.innerHTML = '<p class="error">Unable to load prescriptions.</p>';
+                return;
+            }
+
+            const prescriptions = prescriptionsResponse.data.data;
+            if (prescriptions.length === 0) {
+                container.innerHTML = '<p class="empty">No prescriptions found.</p>';
+                return;
+            }
+
+            container.innerHTML = prescriptions.map((prescription) => `
+                <article class="prescription">
+                    <div class="prescription-header">
+                        <div>
+                            <h3>${escapeHtml(prescription.diagnosis || 'Prescription')}</h3>
+                            <p>Instructions: ${escapeHtml(prescription.instructions || 'No instructions provided.')}</p>
+                        </div>
+                        <div class="date">${formatDate(prescription.prescriptionDate)}</div>
+                    </div>
+                    ${prescription.medicines.map((medicine) => `
+                        <div class="medicine">
+                            <strong>${escapeHtml(medicine.name)}</strong>
+                            <p>Dosage: ${escapeHtml(medicine.dosage)} &middot; Duration: ${escapeHtml(medicine.duration)}</p>
+                        </div>
+                    `).join('')}
+                </article>
+            `).join('');
+        }
+
+        loadPrescriptions();
+    </script>
+</body>
+</html>

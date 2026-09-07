@@ -1,10 +1,9 @@
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AYUSH Care - Consultations</title>
+    <title>NIVARA - Consultations</title>
 
     <style>
         * {
@@ -296,7 +295,9 @@
             }
         }
     </style>
+    <link rel="stylesheet" href="style.css">
     <script src="api.js"></script>
+    <script src="script.js"></script>
     <script>checkAuthGuard();</script>
 </head>
 
@@ -307,7 +308,7 @@
 
         <div class="logo">
             <div class="logo-icon">🌿</div>
-            <h2>AYUSH Care</h2>
+            <h2>NIVARA</h2>
             <p>Doctor Panel</p>
         </div>
 
@@ -382,95 +383,8 @@
             </div>
 
 
-            <!-- PATIENT 1 -->
-            <div class="patient-card">
-
-                <div class="patient-info">
-
-                    <div class="avatar">👨</div>
-
-                    <div>
-                        <strong>Rahul Kumar</strong>
-                        <small>Age: 34 • Male • ID: P001</small>
-                    </div>
-
-                </div>
-
-                <button class="consult-btn"
-                        onclick="openConsultation('Rahul Kumar')">
-                    Start Consultation
-                </button>
-
-            </div>
-
-
-            <!-- EMERGENCY PATIENT -->
-            <div class="patient-card emergency">
-
-                <div class="patient-info">
-
-                    <div class="avatar">👩</div>
-
-                    <div>
-                        <strong>Priya Sharma</strong>
-                        <small>Age: 28 • Female • ID: P002</small>
-
-                        <div class="emergency-tag">
-                            🚨 EMERGENCY PATIENT
-                        </div>
-                    </div>
-
-                </div>
-
-                <button class="consult-btn"
-                        onclick="openConsultation('Priya Sharma')">
-                    Consult Now
-                </button>
-
-            </div>
-
-
-            <!-- PATIENT 3 -->
-            <div class="patient-card">
-
-                <div class="patient-info">
-
-                    <div class="avatar">👨</div>
-
-                    <div>
-                        <strong>Amit Verma</strong>
-                        <small>Age: 45 • Male • ID: P003</small>
-                    </div>
-
-                </div>
-
-                <button class="consult-btn"
-                        onclick="openConsultation('Amit Verma')">
-                    Start Consultation
-                </button>
-
-            </div>
-
-
-            <!-- PATIENT 4 -->
-            <div class="patient-card">
-
-                <div class="patient-info">
-
-                    <div class="avatar">👩</div>
-
-                    <div>
-                        <strong>Neha Singh</strong>
-                        <small>Age: 31 • Female • ID: P004</small>
-                    </div>
-
-                </div>
-
-                <button class="consult-btn"
-                        onclick="openConsultation('Neha Singh')">
-                    Start Consultation
-                </button>
-
+            <div id="patient-list">
+                Loading patients...
             </div>
 
         </div>
@@ -547,7 +461,8 @@
             </div>
 
 
-            <button class="save-btn"
+                <button class="save-btn"
+                    id="saveConsultationButton"
                     onclick="saveConsultation()">
                 Save Consultation
             </button>
@@ -563,6 +478,48 @@
 
         function go(page) {
             window.location.href = page;
+        }
+
+
+        function escapeHTML(value) {
+            return String(value)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+
+        async function loadPatients() {
+            const list = document.getElementById("patient-list");
+            const response = await api.get('/api/patients');
+
+            if (response.status < 200 || response.status >= 300 || !response.data.success) {
+                list.textContent = "Unable to load patients.";
+                return;
+            }
+
+            const patients = response.data.data || [];
+            list.innerHTML = patients.map(function(patient) {
+                const isEmergency = patient.status === "Follow-up";
+                const avatar = patient.gender === "Female" ? "👩" : "👨";
+
+                return `
+                    <div class="patient-card${isEmergency ? " emergency" : ""}">
+                        <div class="patient-info">
+                            <div class="avatar">${avatar}</div>
+                            <div>
+                                <strong>${escapeHTML(patient.name)}</strong>
+                                <small>${escapeHTML(patient.patient_code)}</small>
+                                ${isEmergency ? '<div class="emergency-tag">🚨 EMERGENCY PATIENT</div>' : ""}
+                            </div>
+                        </div>
+                        <button class="consult-btn" data-patient-name="${escapeHTML(patient.name)}" onclick="openConsultation(this.dataset.patientName)">
+                            ${isEmergency ? "Consult Now" : "Start Consultation"}
+                        </button>
+                    </div>`;
+            }).join("");
         }
 
 
@@ -582,24 +539,52 @@
         }
 
 
-        function saveConsultation() {
+        async function saveConsultation() {
 
-            const message =
-                document.getElementById("message");
+            const message = document.getElementById("message");
+            const saveButton = document.getElementById("saveConsultationButton");
+            const patient = document.getElementById("patientName").value.trim();
+            const symptoms = document.getElementById("symptoms").value.trim();
+            const diagnosis = document.getElementById("diagnosis").value.trim();
+            const type = document.getElementById("type").value;
 
-            message.style.color = "#087f5b";
+            if (saveButton.disabled) return;
 
-            message.innerHTML =
-                "✓ Consultation saved successfully.";
+            saveButton.disabled = true;
+            message.style.color = "#d32f2f";
+            message.innerHTML = "Saving consultation...";
 
-            setTimeout(function() {
+            try {
+                const response = await api.post('/api/consultations', {
+                    patient,
+                    symptoms,
+                    diagnosis,
+                    type
+                });
 
-                closeConsultation();
+                const saved = response.status === 201 &&
+                    response.data &&
+                    response.data.success === true &&
+                    response.data.data &&
+                    Number(response.data.data.id) > 0;
 
-                message.innerHTML = "";
+                if (!saved) {
+                    throw new Error(response.data && response.data.message ? response.data.message : "Unable to save consultation.");
+                }
 
-            }, 1500);
+                message.style.color = "#087f5b";
+                message.innerHTML = "✓ Consultation saved successfully.";
 
+                setTimeout(function() {
+                    closeConsultation();
+                    message.innerHTML = "";
+                    saveButton.disabled = false;
+                }, 1500);
+            } catch (error) {
+                message.style.color = "#d32f2f";
+                message.innerHTML = error.message || "Unable to save consultation.";
+                saveButton.disabled = false;
+            }
         }
 
 
@@ -623,9 +608,11 @@
 
         }
 
+
+        loadPatients();
+
     </script>
 
 </body>
 </html>
-```
 

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>AYUSH Care - Login</title>
+    <title>NIVARA - Login</title>
 
     <style>
         * {
@@ -264,7 +264,7 @@
     </style>
 </head>
 
-<body>
+<body class="login-page">
 
     <div class="login-wrapper">
 
@@ -273,7 +273,7 @@
 
             <div class="logo">🌿</div>
 
-            <h1>AYUSH Care</h1>
+            <h1>NIVARA</h1>
 
             <h3>Patient Management System</h3>
 
@@ -303,7 +303,7 @@
             <h2>Welcome Back 👋</h2>
 
             <p class="subtitle">
-                Login to continue to AYUSH Care
+                Login to continue to NIVARA
             </p>
 
 
@@ -404,7 +404,9 @@
     </div>
 
 
+    <link rel="stylesheet" href="style.css">
     <script src="api.js"></script>
+    <script src="script.js"></script>
     <script>
 
         let selectedRole = "doctor";
@@ -462,7 +464,7 @@
             message.style.color = "#333";
             message.innerHTML = "Authenticating...";
 
-            const response = await api.post('/auth/login', { mobile, password });
+            const response = await api.post('/api/auth/login', { mobile, password });
 
             if (response.status === 200 && response.data.success) {
                 const user = response.data.data.user;
@@ -496,4 +498,3 @@
 
 </body>
 </html>
-```

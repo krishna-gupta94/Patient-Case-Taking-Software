@@ -1,0 +1,7 @@
+backend/.env
+.env
+node_modules/
+**/node_modules/
+*.log
+*.sql.bak
+nivara_before_cleanup.sql

@@ -1,5 +1,4 @@
-```javascript
-// AYUSH Care - Common JavaScript
+// NIVARA - Common JavaScript
 
 function go(page) {
     window.location.href = page;
@@ -26,21 +25,29 @@ function showError(message) {
     alert("❌ " + message);
 }
 
+function applyDarkMode(enabled) {
+    document.documentElement.classList.toggle("dark-mode", enabled);
+    if (document.body) {
+        document.body.classList.toggle("dark-mode", enabled);
+    }
+}
+
 // Dark mode
 function toggleDarkMode() {
-    document.body.classList.toggle("dark-mode");
-
-    if (document.body.classList.contains("dark-mode")) {
-        localStorage.setItem("ayushDarkMode", "true");
-    } else {
-        localStorage.setItem("ayushDarkMode", "false");
-    }
+    const enabled = !document.documentElement.classList.contains("dark-mode");
+    localStorage.setItem("ayushDarkMode", String(enabled));
+    applyDarkMode(enabled);
 }
 
 // Load dark mode
 window.addEventListener("DOMContentLoaded", function () {
-    if (localStorage.getItem("ayushDarkMode") === "true") {
-        document.body.classList.add("dark-mode");
+    const enabled = localStorage.getItem("ayushDarkMode") === "true";
+    applyDarkMode(enabled);
+
+    const darkModeToggle = document.getElementById("darkMode");
+    if (darkModeToggle) {
+        darkModeToggle.checked = enabled;
+        darkModeToggle.addEventListener("change", toggleDarkMode);
     }
 });
 
@@ -70,4 +77,4 @@ function searchTable(inputId, tableId) {
         }
     });
 }
-```
+applyDarkMode(localStorage.getItem("ayushDarkMode") === "true");

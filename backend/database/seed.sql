@@ -20,10 +20,10 @@ SET @patient_user_id = LAST_INSERT_ID();
 
 -- Insert Patients (Matching Phase 1 demo data)
 INSERT INTO patients (user_id, patient_code, name, age, gender, mobile, blood_group, status, address) VALUES
-(@patient_user_id, 'AYU-1001', 'Rahul Kumar', 35, 'Male', '9876543211', 'O+', 'Active', 'Bareilly, Uttar Pradesh'),
-(NULL, 'AYU-1002', 'Priya Sharma', 29, 'Female', '9123456781', 'B+', 'Active', 'Lucknow, Uttar Pradesh'),
-(NULL, 'AYU-1003', 'Amit Verma', 42, 'Male', '9012345678', 'A+', 'Follow-up', 'Delhi'),
-(NULL, 'AYU-1004', 'Neha Singh', 31, 'Female', '9988776655', 'O-', 'Active', 'Noida');
+(@patient_user_id, 'P001', 'Rahul Kumar', 35, 'Male', '9876543211', 'O+', 'Active', 'Bareilly, Uttar Pradesh'),
+(NULL, 'P002', 'Priya Sharma', 29, 'Female', '9123456781', 'B+', 'Active', 'Lucknow, Uttar Pradesh'),
+(NULL, 'P003', 'Amit Verma', 42, 'Male', '9012345678', 'A+', 'Follow-up', 'Delhi'),
+(NULL, 'P004', 'Neha Singh', 31, 'Female', '9988776655', 'O-', 'Active', 'Noida');
 
 -- Appointments
 INSERT INTO appointments (patient_id, doctor_id, date, time, type, status) VALUES 

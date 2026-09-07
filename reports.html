@@ -1,10 +1,9 @@
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AYUSH Care - Reports</title>
+    <title>NIVARA - Reports</title>
 
     <style>
         * {
@@ -262,7 +261,9 @@
             }
         }
     </style>
+    <link rel="stylesheet" href="style.css">
     <script src="api.js"></script>
+    <script src="script.js"></script>
     <script>checkAuthGuard();</script>
 </head>
 
@@ -272,7 +273,7 @@
     <div class="sidebar">
 
         <div class="logo">
-            <h2>🌿 AYUSH Care</h2>
+            <h2>🌿 NIVARA</h2>
             <p>Patient Management System</p>
         </div>
 
@@ -331,22 +332,22 @@
 
             <div class="stat-card">
                 <h3>Total Patients</h3>
-                <h2>248</h2>
+                <h2 id="totalPatients">-</h2>
             </div>
 
             <div class="stat-card">
                 <h3>Total Consultations</h3>
-                <h2>186</h2>
+                <h2 id="totalConsultations">-</h2>
             </div>
 
             <div class="stat-card">
                 <h3>Appointments</h3>
-                <h2>42</h2>
+                <h2 id="totalAppointments">-</h2>
             </div>
 
             <div class="stat-card">
                 <h3>Emergency Cases</h3>
-                <h2 class="emergency">08</h2>
+                <h2 class="emergency" id="totalEmergencyAppointments">-</h2>
             </div>
 
         </div>
@@ -405,53 +406,10 @@
                         </tr>
                     </thead>
 
-                    <tbody>
-
+                    <tbody id="reportsTableBody">
                         <tr>
-                            <td>Rahul Kumar</td>
-                            <td>Consultation</td>
-                            <td>31 Aug 2026</td>
-                            <td>Dr. Sharma</td>
-                            <td class="normal">Normal</td>
-                            <td><span class="status">Completed</span></td>
+                            <td colspan="6">Loading reports...</td>
                         </tr>
-
-                        <tr>
-                            <td class="emergency">🚨 Priya Sharma</td>
-                            <td>Emergency</td>
-                            <td>31 Aug 2026</td>
-                            <td>Dr. Sharma</td>
-                            <td class="emergency">Emergency</td>
-                            <td><span class="status">Under Review</span></td>
-                        </tr>
-
-                        <tr>
-                            <td>Amit Singh</td>
-                            <td>Appointment</td>
-                            <td>30 Aug 2026</td>
-                            <td>Dr. Sharma</td>
-                            <td class="normal">Normal</td>
-                            <td><span class="status">Completed</span></td>
-                        </tr>
-
-                        <tr>
-                            <td class="emergency">🚨 Vikas Gupta</td>
-                            <td>Emergency</td>
-                            <td>29 Aug 2026</td>
-                            <td>Dr. Sharma</td>
-                            <td class="emergency">Emergency</td>
-                            <td><span class="status">Completed</span></td>
-                        </tr>
-
-                        <tr>
-                            <td>Neha Verma</td>
-                            <td>Consultation</td>
-                            <td>28 Aug 2026</td>
-                            <td>Dr. Sharma</td>
-                            <td class="normal">Normal</td>
-                            <td><span class="status">Completed</span></td>
-                        </tr>
-
                     </tbody>
 
                 </table>
@@ -471,10 +429,10 @@
                 <p>Completed Consultations</p>
 
                 <div class="progress">
-                    <div class="progress-bar" style="width: 78%;"></div>
+                    <div class="progress-bar" id="consultationProgress"></div>
                 </div>
 
-                <strong>78%</strong>
+                <strong id="consultationRate">-</strong>
 
             </div>
 
@@ -486,10 +444,10 @@
                 <p>Emergency cases handled</p>
 
                 <div class="progress">
-                    <div class="progress-bar" style="width: 32%;"></div>
+                    <div class="progress-bar" id="emergencyProgress"></div>
                 </div>
 
-                <strong>32%</strong>
+                <strong id="emergencyRate">-</strong>
 
             </div>
 
@@ -504,6 +462,83 @@
             window.location.href = page;
         }
 
+
+        function setStatistics(statistics) {
+            document.getElementById("totalPatients").innerText = statistics.totalPatients;
+            document.getElementById("totalConsultations").innerText = statistics.totalConsultations;
+            document.getElementById("totalAppointments").innerText = statistics.totalAppointments;
+            document.getElementById("totalEmergencyAppointments").innerText = statistics.totalEmergencyAppointments;
+            document.getElementById("consultationProgress").style.width = `${statistics.consultationCompletionRate}%`;
+            document.getElementById("consultationRate").innerText = `${statistics.consultationCompletionRate}%`;
+            document.getElementById("emergencyProgress").style.width = `${statistics.emergencyHandledRate}%`;
+            document.getElementById("emergencyRate").innerText = `${statistics.emergencyHandledRate}%`;
+        }
+
+        function formatReportDate(date) {
+            return new Date(`${date}T00:00:00`).toLocaleDateString("en-GB", {
+                day: "2-digit",
+                month: "short",
+                year: "numeric"
+            });
+        }
+
+        function renderReports(reports) {
+            const tableBody = document.getElementById("reportsTableBody");
+
+            if (reports.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="6">No reports found for the selected filters.</td></tr>';
+                return;
+            }
+
+            tableBody.innerHTML = reports.map((report) => {
+                const isEmergency = report.priority === "Emergency";
+                const patientClass = isEmergency ? ' class="emergency"' : "";
+                const priorityClass = isEmergency ? "emergency" : "normal";
+                const patientName = isEmergency ? `🚨 ${report.patientName}` : report.patientName;
+
+                return `<tr>
+                    <td${patientClass}>${patientName} (${report.patientCode})</td>
+                    <td>${report.reportType}</td>
+                    <td>${formatReportDate(report.reportDate)}</td>
+                    <td>${report.doctorName}</td>
+                    <td class="${priorityClass}">${report.priority}</td>
+                    <td><span class="status">${report.status}</span></td>
+                </tr>`;
+            }).join("");
+        }
+
+        async function loadReports(showSuccessMessage = false) {
+            const from = document.getElementById("fromDate").value;
+            const to = document.getElementById("toDate").value;
+            const type = document.getElementById("reportType").value;
+            const message = document.getElementById("message");
+            const tableBody = document.getElementById("reportsTableBody");
+
+            message.innerText = "Loading reports...";
+            message.style.color = "#555";
+            tableBody.innerHTML = '<tr><td colspan="6">Loading reports...</td></tr>';
+
+            const query = new URLSearchParams({ type });
+            if (from && to) {
+                query.set("from", from);
+                query.set("to", to);
+            }
+
+            const response = await api.get(`/api/reports?${query.toString()}`);
+            if (response.status !== 200 || !response.data.success) {
+                message.style.color = "red";
+                message.innerText = response.data.message || "Unable to load reports.";
+                tableBody.innerHTML = '<tr><td colspan="6">Unable to load reports.</td></tr>';
+                return;
+            }
+
+            setStatistics(response.data.data.statistics);
+            renderReports(response.data.data.reports);
+            message.style.color = "#087f5b";
+            message.innerText = showSuccessMessage
+                ? `Report generated successfully for ${type} from ${from} to ${to}.`
+                : "Reports loaded successfully.";
+        }
 
         function generateReport() {
 
@@ -528,10 +563,7 @@
                 return;
             }
 
-            message.style.color = "#087f5b";
-            message.innerText =
-                "✓ Report generated successfully for " +
-                type + " from " + from + " to " + to + ".";
+            loadReports(true);
         }
 
 
@@ -539,9 +571,10 @@
             window.print();
         }
 
+        loadReports();
+
     </script>
 
 </body>
 </html>
-```
 

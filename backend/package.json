@@ -1,7 +1,7 @@
 {
   "name": "ayush-care-backend",
   "version": "1.0.0",
-  "description": "AYUSH Care Backend API",
+  "description": "NIVARA Backend API",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

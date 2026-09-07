@@ -1,11 +1,10 @@
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>AYUSH Care - Appointments</title>
+    <title>NIVARA - Appointments</title>
 
     <style>
         * {
@@ -210,6 +209,19 @@
             outline: none;
         }
 
+        .time-input-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        .time-input-group input {
+            flex: 1;
+        }
+
+        .time-input-group select {
+            width: 90px;
+        }
+
         .book-btn {
             width: 100%;
             padding: 13px;
@@ -258,7 +270,9 @@
             }
         }
     </style>
+    <link rel="stylesheet" href="style.css">
     <script src="api.js"></script>
+    <script src="script.js"></script>
     <script>checkAuthGuard();</script>
 </head>
 
@@ -269,7 +283,7 @@
 
         <div class="logo">
             <div class="logo-icon">🌿</div>
-            <h2>AYUSH Care</h2>
+            <h2>NIVARA</h2>
             <p>Doctor Panel</p>
         </div>
 
@@ -331,95 +345,8 @@
 
                 <h2>Today's Appointments</h2>
 
-
-                <div class="appointment">
-
-                    <div class="appointment-info">
-
-                        <div class="avatar">👨</div>
-
-                        <div>
-                            <strong>Rahul Kumar</strong>
-                            <small>General Consultation • P001</small>
-                        </div>
-
-                    </div>
-
-                    <div class="time">
-                        <strong>10:30 AM</strong>
-                        <small>Confirmed</small>
-                    </div>
-
-                </div>
-
-
-                <!-- EMERGENCY APPOINTMENT -->
-                <div class="appointment emergency">
-
-                    <div class="appointment-info">
-
-                        <div class="avatar">👩</div>
-
-                        <div>
-                            <strong>Priya Sharma</strong>
-                            <small>Urgent Consultation • P002</small>
-
-                            <div class="emergency-tag">
-                                🚨 EMERGENCY
-                            </div>
-                        </div>
-
-                    </div>
-
-                    <div class="time">
-                        <strong style="color:#d32f2f;">
-                            11:15 AM
-                        </strong>
-                        <small>Immediate Attention</small>
-                    </div>
-
-                </div>
-
-
-                <div class="appointment">
-
-                    <div class="appointment-info">
-
-                        <div class="avatar">👨</div>
-
-                        <div>
-                            <strong>Amit Verma</strong>
-                            <small>Follow-up • P003</small>
-                        </div>
-
-                    </div>
-
-                    <div class="time">
-                        <strong>12:00 PM</strong>
-                        <small>Confirmed</small>
-                    </div>
-
-                </div>
-
-
-                <div class="appointment">
-
-                    <div class="appointment-info">
-
-                        <div class="avatar">👩</div>
-
-                        <div>
-                            <strong>Neha Singh</strong>
-                            <small>General Consultation • P004</small>
-                        </div>
-
-                    </div>
-
-                    <div class="time">
-                        <strong>02:30 PM</strong>
-                        <small>Pending</small>
-                    </div>
-
+                <div id="appointment-list">
+                    <p>Loading appointments...</p>
                 </div>
 
             </div>
@@ -437,10 +364,6 @@
                     <select id="patient">
 
                         <option value="">Select Patient</option>
-                        <option>Rahul Kumar</option>
-                        <option>Priya Sharma</option>
-                        <option>Amit Verma</option>
-                        <option>Neha Singh</option>
 
                     </select>
 
@@ -460,7 +383,16 @@
 
                     <label>Time</label>
 
-                    <input type="time" id="time">
+                    <div class="time-input-group">
+
+                        <input type="time" id="time" min="01:00" max="12:59">
+
+                        <select id="period">
+                            <option value="AM">AM</option>
+                            <option value="PM">PM</option>
+                        </select>
+
+                    </div>
 
                 </div>
 
@@ -480,8 +412,8 @@
                 </div>
 
 
-                <button class="book-btn"
-                        onclick="bookAppointment()">
+                <button id="book-button" class="book-btn"
+                    onclick="bookAppointment()">
                     Book Appointment
                 </button>
 
@@ -501,7 +433,111 @@
         }
 
 
-        function bookAppointment() {
+        let appointmentRequestInProgress = false;
+
+        function escapeHTML(value) {
+            return String(value)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        function formatTime(value) {
+            const parts = String(value).split(":");
+            const hour = Number(parts[0]);
+            const minute = parts[1] || "00";
+
+            if (!Number.isInteger(hour) || hour < 0 || hour > 23 || !/^\d{2}$/.test(minute)) {
+                return value;
+            }
+
+            const period = hour >= 12 ? "PM" : "AM";
+            const displayHour = hour % 12 || 12;
+            return `${String(displayHour).padStart(2, "0")}:${minute} ${period}`;
+        }
+
+        function renderAppointments(appointments) {
+            const list = document.getElementById("appointment-list");
+
+            if (appointments.length === 0) {
+                list.innerHTML = "<p>No appointments found.</p>";
+                return;
+            }
+
+            list.innerHTML = appointments.map(function (appointment) {
+                const isEmergency = appointment.type === "Emergency";
+                const typeLabel = escapeHTML(appointment.type);
+                const patientName = escapeHTML(appointment.patientName);
+                const patientCode = escapeHTML(appointment.patientCode);
+                const status = escapeHTML(appointment.status);
+
+                return `
+                    <div class="appointment${isEmergency ? " emergency" : ""}">
+                        <div class="appointment-info">
+                            <div class="avatar">${isEmergency ? "👩" : "👨"}</div>
+                            <div>
+                                <strong>${patientName}</strong>
+                                <small>${typeLabel} • ${patientCode}</small>
+                                ${isEmergency ? '<div class="emergency-tag">🚨 EMERGENCY</div>' : ""}
+                            </div>
+                        </div>
+                        <div class="time">
+                            <strong${isEmergency ? ' style="color:#d32f2f;"' : ""}>${escapeHTML(formatTime(appointment.time))}</strong>
+                            <small>${status}</small>
+                        </div>
+                    </div>`;
+            }).join("");
+        }
+
+        async function loadAppointments() {
+            const list = document.getElementById("appointment-list");
+            list.innerHTML = "<p>Loading appointments...</p>";
+
+            const response = await api.get('/api/appointments');
+            if (response.status >= 200 && response.status < 300 && response.data.success) {
+                renderAppointments(response.data.data || []);
+                return true;
+            }
+
+            list.innerHTML = `<p style="color:#d32f2f;">${escapeHTML(response.data.message || "Unable to load appointments.")}</p>`;
+            return false;
+        }
+
+        async function loadPatients() {
+            const patientSelect = document.getElementById("patient");
+            const response = await api.get('/api/patients');
+
+            if (response.status >= 200 && response.status < 300 && response.data.success) {
+                const patients = Array.isArray(response.data.data)
+                    ? response.data.data
+                    : response.data.data && response.data.data.patients || [];
+
+                patientSelect.innerHTML = '<option value="">Select Patient</option>';
+                patients.forEach(function (patient) {
+                    if (patient.status === "Inactive") {
+                        return;
+                    }
+
+                    const option = document.createElement("option");
+                    option.value = patient.name;
+                    option.textContent = patient.name;
+                    patientSelect.appendChild(option);
+                });
+                return true;
+            }
+
+            patientSelect.innerHTML = '<option value="">Unable to load patients</option>';
+            return false;
+        }
+
+        window.addEventListener("DOMContentLoaded", function () {
+            loadAppointments();
+            loadPatients();
+        });
+
+        async function bookAppointment() {
 
             const patient =
                 document.getElementById("patient").value;
@@ -512,11 +548,14 @@
             const time =
                 document.getElementById("time").value;
 
+            const period =
+                document.getElementById("period").value;
+
             const message =
                 document.getElementById("message");
 
 
-            if (patient === "" || date === "" || time === "") {
+            if (patient === "" || date === "" || time === "" || period === "") {
 
                 message.style.color = "#d32f2f";
 
@@ -526,11 +565,53 @@
                 return;
             }
 
+            const timeParts = time.split(":");
+            const inputHour = Number(timeParts[0]);
+            const inputMinute = timeParts[1];
 
-            message.style.color = "#087f5b";
+            if (!Number.isInteger(inputHour) || inputHour < 1 || inputHour > 12 || !/^\d{2}$/.test(inputMinute)) {
+                message.style.color = "#d32f2f";
+                message.innerHTML = "Please enter a valid appointment time.";
+                return;
+            }
 
-            message.innerHTML =
-                "✓ Appointment booked successfully.";
+            const hour24 = inputHour % 12 + (period === "PM" ? 12 : 0);
+            const time24 = `${String(hour24).padStart(2, "0")}:${inputMinute}`;
+
+
+            if (appointmentRequestInProgress) {
+                return;
+            }
+
+            const bookButton = document.getElementById("book-button");
+            appointmentRequestInProgress = true;
+            bookButton.disabled = true;
+            message.style.color = "#333";
+            message.innerHTML = "Booking appointment...";
+
+            try {
+                const response = await api.post('/api/appointments', {
+                    patient,
+                    date,
+                    time: time24,
+                    type: document.getElementById("type").value
+                });
+
+                if (response.status >= 200 && response.status < 300 && response.data.success) {
+                    message.style.color = "#087f5b";
+                    message.innerHTML = "✓ Appointment booked successfully.";
+                    await loadAppointments();
+                } else {
+                    message.style.color = "#d32f2f";
+                    message.innerHTML = response.data.message || "Unable to book appointment.";
+                }
+            } catch (error) {
+                message.style.color = "#d32f2f";
+                message.innerHTML = "Unable to book appointment. Please try again.";
+            } finally {
+                appointmentRequestInProgress = false;
+                bookButton.disabled = false;
+            }
 
         }
 
@@ -538,5 +619,4 @@
 
 </body>
 </html>
-```
 

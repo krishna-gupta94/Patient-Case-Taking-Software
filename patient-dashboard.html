@@ -1,10 +1,9 @@
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AYUSH Care - Patient Dashboard</title>
+    <title>NIVARA - Patient Dashboard</title>
 
     <style>
         * {
@@ -333,7 +332,9 @@
             }
         }
     </style>
+    <link rel="stylesheet" href="style.css">
     <script src="api.js"></script>
+    <script src="script.js"></script>
     <script>checkAuthGuard();</script>
 </head>
 
@@ -344,7 +345,7 @@
 
         <div class="logo">
             <div class="logo-icon">🌿</div>
-            <h2>AYUSH Care</h2>
+            <h2>NIVARA</h2>
             <p>Patient Portal</p>
         </div>
 
@@ -354,15 +355,15 @@
                 🏠 &nbsp; Dashboard
             </button>
 
-            <button onclick="go('appointments.html')">
+            <button onclick="go('patient-appointments.html')">
                 📅 &nbsp; My Appointments
             </button>
 
-            <button onclick="go('prescriptions.html')">
+            <button onclick="go('patient-prescriptions.html')">
                 💊 &nbsp; My Prescriptions
             </button>
 
-            <button onclick="go('reports.html')">
+            <button onclick="go('patient-reports.html')">
                 📊 &nbsp; My Reports
             </button>
 
@@ -381,12 +382,12 @@
         <div class="topbar">
 
             <div>
-                <h1>Welcome, Rahul Kumar 👋</h1>
+                <h1 id="patientWelcome">Loading patient...</h1>
                 <p>Here is your health dashboard</p>
             </div>
 
             <div class="patient-profile">
-                👤 Rahul Kumar
+                👤 <span id="patientProfileName">Loading...</span>
             </div>
 
         </div>
@@ -416,22 +417,22 @@
 
             <div class="stat-card">
                 <h3>Upcoming Appointments</h3>
-                <h2>02</h2>
+                <h2 id="upcomingAppointmentsCount">Loading...</h2>
             </div>
 
             <div class="stat-card">
                 <h3>Past Consultations</h3>
-                <h2>08</h2>
+                <h2 id="pastConsultationsCount">Loading...</h2>
             </div>
 
             <div class="stat-card">
                 <h3>Prescriptions</h3>
-                <h2>04</h2>
+                <h2 id="prescriptionsCount">Loading...</h2>
             </div>
 
             <div class="stat-card">
                 <h3>Health Reports</h3>
-                <h2>06</h2>
+                <h2 id="healthReportsCount">Loading...</h2>
             </div>
 
         </div>
@@ -447,32 +448,8 @@
 
                     <h2>📅 Upcoming Appointments</h2>
 
-                    <div class="appointment">
-
-                        <div>
-                            <h3>Dr. Sharma</h3>
-                            <p>General Consultation</p>
-                            <p>02 September 2026</p>
-                        </div>
-
-                        <div class="appointment-time">
-                            10:30 AM
-                        </div>
-
-                    </div>
-
-                    <div class="appointment">
-
-                        <div>
-                            <h3>Dr. Mehta</h3>
-                            <p>Follow-up Consultation</p>
-                            <p>05 September 2026</p>
-                        </div>
-
-                        <div class="appointment-time">
-                            04:00 PM
-                        </div>
-
+                    <div id="upcomingAppointments">
+                        <p class="appointment">Loading appointments...</p>
                     </div>
 
                 </div>
@@ -483,19 +460,8 @@
 
                     <h2>💊 Current Prescription</h2>
 
-                    <div class="medicine">
-                        <h3>Medicine A</h3>
-                        <p>1 tablet after breakfast</p>
-                    </div>
-
-                    <div class="medicine">
-                        <h3>Medicine B</h3>
-                        <p>1 tablet after dinner</p>
-                    </div>
-
-                    <div class="medicine">
-                        <h3>Medicine C</h3>
-                        <p>As advised by doctor</p>
+                    <div id="currentPrescription">
+                        <p class="health-item">Loading prescription...</p>
                     </div>
 
                 </div>
@@ -512,22 +478,22 @@
 
                     <div class="health-item">
                         <span>Patient ID</span>
-                        <strong>AYU-10245</strong>
+                        <strong id="patientCode">Loading...</strong>
                     </div>
 
                     <div class="health-item">
                         <span>Age</span>
-                        <strong>35 Years</strong>
+                        <strong id="patientAge">Loading...</strong>
                     </div>
 
                     <div class="health-item">
                         <span>Blood Group</span>
-                        <strong>O+</strong>
+                        <strong id="patientBloodGroup">Loading...</strong>
                     </div>
 
                     <div class="health-item">
                         <span>Last Consultation</span>
-                        <strong>28 August 2026</strong>
+                        <strong id="lastConsultation">Loading...</strong>
                     </div>
 
                 </div>
@@ -540,17 +506,17 @@
 
                     <div class="health-item">
                         <span>Doctor</span>
-                        <strong>Dr. Sharma</strong>
+                        <strong id="patientDoctor">Loading...</strong>
                     </div>
 
                     <div class="health-item">
                         <span>Specialization</span>
-                        <strong>AYUSH Physician</strong>
+                        <strong>NIVARA Physician</strong>
                     </div>
 
                     <div class="health-item">
                         <span>Clinic</span>
-                        <strong>AYUSH Care</strong>
+                        <strong>NIVARA</strong>
                     </div>
 
                 </div>
@@ -562,10 +528,10 @@
                     <h2>📊 Latest Report</h2>
 
                     <p style="color:#777; margin-bottom:15px;">
-                        Your latest health report is available.
+                        <span id="latestReport">Loading latest report...</span>
                     </p>
 
-                    <button class="btn" onclick="go('reports.html')">
+                    <button class="btn" onclick="go('patient-reports.html')">
                         View Report
                     </button>
 
@@ -601,6 +567,93 @@
 
     <script>
 
+        function formatDate(date) {
+            return new Date(date).toLocaleDateString(undefined, {
+                year: 'numeric', month: 'long', day: 'numeric'
+            });
+        }
+
+        function formatTime(time) {
+            return new Date(`1970-01-01T${time}`).toLocaleTimeString(undefined, {
+                hour: 'numeric', minute: '2-digit'
+            });
+        }
+
+        function renderDashboardError() {
+            document.getElementById('upcomingAppointmentsCount').textContent = 'Error';
+            document.getElementById('pastConsultationsCount').textContent = 'Error';
+            document.getElementById('prescriptionsCount').textContent = 'Error';
+            document.getElementById('healthReportsCount').textContent = 'Error';
+            document.getElementById('upcomingAppointments').innerHTML = '<p class="appointment">Unable to load appointments.</p>';
+            document.getElementById('currentPrescription').innerHTML = '<p class="health-item">Unable to load prescription.</p>';
+            document.getElementById('patientAge').textContent = 'Unavailable';
+            document.getElementById('patientBloodGroup').textContent = 'Unavailable';
+            document.getElementById('lastConsultation').textContent = 'Unavailable';
+            document.getElementById('patientDoctor').textContent = 'Unavailable';
+            document.getElementById('latestReport').textContent = 'Unable to load report data.';
+        }
+
+        function renderDashboard(data) {
+            const patient = data.patient;
+            const metrics = data.metrics;
+            document.getElementById('patientWelcome').textContent = `Welcome, ${patient.name} 👋`;
+            document.getElementById('patientProfileName').textContent = patient.name;
+            document.getElementById('patientCode').textContent = patient.patientCode;
+            document.getElementById('patientAge').textContent = `${patient.age} Years`;
+            document.getElementById('patientBloodGroup').textContent = patient.bloodGroup;
+            document.getElementById('upcomingAppointmentsCount').textContent = metrics.upcomingAppointments;
+            document.getElementById('pastConsultationsCount').textContent = metrics.pastConsultations;
+            document.getElementById('prescriptionsCount').textContent = metrics.prescriptions;
+            document.getElementById('healthReportsCount').textContent = metrics.healthReports;
+            document.getElementById('lastConsultation').textContent = data.lastConsultationDate
+                ? formatDate(data.lastConsultationDate)
+                : 'No consultations recorded';
+            document.getElementById('patientDoctor').textContent = data.doctorName || 'No doctor recorded';
+            document.getElementById('latestReport').textContent = data.latestReport
+                ? `${data.latestReport.reportType}: ${data.latestReport.reportTitle} (${formatDate(data.latestReport.reportDate)})`
+                : 'No reports recorded';
+
+            const appointments = document.getElementById('upcomingAppointments');
+            if (data.upcomingAppointments.length === 0) {
+                appointments.innerHTML = '<p class="appointment">No upcoming appointments.</p>';
+            } else {
+                appointments.innerHTML = data.upcomingAppointments.map((appointment) => `
+                    <div class="appointment">
+                        <div>
+                            <h3>${appointment.doctorName}</h3>
+                            <p>${appointment.type}</p>
+                            <p>${formatDate(appointment.date)}</p>
+                        </div>
+                        <div class="appointment-time">${formatTime(appointment.time)}</div>
+                    </div>
+                `).join('');
+            }
+
+            const prescription = document.getElementById('currentPrescription');
+            if (!data.latestPrescription || data.latestPrescription.medicines.length === 0) {
+                prescription.innerHTML = '<p class="health-item">No prescriptions recorded.</p>';
+            } else {
+                prescription.innerHTML = data.latestPrescription.medicines.map((medicine) => `
+                    <div class="medicine">
+                        <h3>${medicine.name}</h3>
+                        <p>${medicine.dosage} &middot; ${medicine.duration}</p>
+                    </div>
+                `).join('');
+            }
+        }
+
+        async function loadPatientDashboard() {
+            const response = await api.get('/api/patient-portal/dashboard');
+            if (response.status !== 200 || !response.data.success || !response.data.data) {
+                renderDashboardError();
+                return;
+            }
+
+            renderDashboard(response.data.data);
+        }
+
+        loadPatientDashboard();
+
         function go(page) {
             window.location.href = page;
         }
@@ -622,6 +675,8 @@
                 confirm("Are you sure you want to logout?");
 
             if (confirmLogout) {
+                localStorage.removeItem('ayush_token');
+                localStorage.removeItem('ayush_user');
                 window.location.href = "index.html";
             }
         }
@@ -630,5 +685,4 @@
 
 </body>
 </html>
-```
 

@@ -14,7 +14,7 @@ const getHealthStatus = async (req, res, next) => {
 
     res.status(200).json({
         success: true,
-        message: 'AYUSH Care API is running',
+        message: 'NIVARA API is running',
         data: {
             database: dbStatus
         }

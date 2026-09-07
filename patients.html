@@ -1,10 +1,9 @@
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AYUSH Care - Patients</title>
+    <title>NIVARA - Patients</title>
 
     <style>
         * {
@@ -346,7 +345,9 @@
             }
         }
     </style>
+    <link rel="stylesheet" href="style.css">
     <script src="api.js"></script>
+    <script src="script.js"></script>
     <script>checkAuthGuard();</script>
 </head>
 
@@ -357,7 +358,7 @@
 
         <div class="logo">
             <div class="logo-icon">🌿</div>
-            <h2>AYUSH Care</h2>
+            <h2>NIVARA</h2>
             <p>Doctor Panel</p>
         </div>
 
@@ -594,43 +595,7 @@
         }
 
 
-        /* DEFAULT PATIENTS */
-        let patients = JSON.parse(localStorage.getItem("ayushPatients")) || [
-
-            {
-                id: "AYU-1001",
-                name: "Rahul Kumar",
-                age: 35,
-                gender: "Male",
-                mobile: "9876543211",
-                bloodGroup: "O+",
-                status: "Active",
-                address: "Bareilly, Uttar Pradesh"
-            },
-
-            {
-                id: "AYU-1002",
-                name: "Priya Sharma",
-                age: 29,
-                gender: "Female",
-                mobile: "9123456781",
-                bloodGroup: "B+",
-                status: "Active",
-                address: "Lucknow, Uttar Pradesh"
-            },
-
-            {
-                id: "AYU-1003",
-                name: "Amit Verma",
-                age: 42,
-                gender: "Male",
-                mobile: "9012345678",
-                bloodGroup: "A+",
-                status: "Active",
-                address: "Delhi"
-            }
-
-        ];
+        let patients = [];
 
 
         /* DISPLAY PATIENTS */
@@ -657,7 +622,7 @@
 
                 row.innerHTML = `
 
-                    <td><strong>${patient.id}</strong></td>
+                    <td><strong>${patient.patient_code}</strong></td>
 
                     <td>${patient.name}</td>
 
@@ -678,7 +643,7 @@
                     <td>
                         <button
                             class="delete-btn"
-                            onclick="deletePatient('${patient.id}')">
+                            onclick="deletePatient(${patient.id})">
                             🗑️ Delete
                         </button>
                     </td>
@@ -709,7 +674,7 @@
 
 
         /* ADD PATIENT */
-        function addPatient(event) {
+        async function addPatient(event) {
 
             event.preventDefault();
 
@@ -736,41 +701,22 @@
                 document.getElementById("address").value.trim();
 
 
-            /* CREATE PATIENT ID */
+            const response = await api.post('/api/patients', {
+                name,
+                age,
+                gender,
+                mobile,
+                bloodGroup,
+                status,
+                address
+            });
 
-            const idNumber = 1001 + patients.length;
+            if (response.status !== 201 || !response.data.success) {
+                alert(response.data.message || "Unable to add patient.");
+                return;
+            }
 
-            const patientId = "AYU-" + idNumber;
-
-
-            const newPatient = {
-
-                id: patientId,
-                name: name,
-                age: age,
-                gender: gender,
-                mobile: mobile,
-                bloodGroup: bloodGroup,
-                status: status,
-                address: address
-
-            };
-
-
-            patients.push(newPatient);
-
-
-            /* SAVE DATA */
-
-            localStorage.setItem(
-                "ayushPatients",
-                JSON.stringify(patients)
-            );
-
-
-            /* UPDATE TABLE */
-
-            displayPatients();
+            await loadPatients();
 
 
             /* CLOSE MODAL */
@@ -783,10 +729,7 @@
             document.querySelector("form").reset();
 
 
-            alert(
-                "✓ Patient added successfully!\nPatient ID: " +
-                patientId
-            );
+            alert("✓ Patient added successfully!");
 
         }
 
@@ -808,7 +751,7 @@
 
                         patient.name.toLowerCase().includes(search) ||
 
-                        patient.id.toLowerCase().includes(search) ||
+                        patient.patient_code.toLowerCase().includes(search) ||
 
                         patient.mobile.includes(search)
 
@@ -823,7 +766,7 @@
 
 
         /* DELETE */
-        function deletePatient(id) {
+        async function deletePatient(id) {
 
             const confirmDelete =
                 confirm(
@@ -836,21 +779,13 @@
             }
 
 
-            patients =
-                patients.filter(function(patient) {
+            const response = await api.delete(`/api/patients/${id}`);
+            if (response.status !== 200 || !response.data.success) {
+                alert(response.data.message || "Unable to delete patient.");
+                return;
+            }
 
-                    return patient.id !== id;
-
-                });
-
-
-            localStorage.setItem(
-                "ayushPatients",
-                JSON.stringify(patients)
-            );
-
-
-            displayPatients();
+            await loadPatients();
 
         }
 
@@ -870,12 +805,23 @@
         };
 
 
-        /* INITIAL LOAD */
-        displayPatients();
+        async function loadPatients() {
+            const response = await api.get('/api/patients');
+            if (response.status !== 200 || !response.data.success) {
+                document.getElementById("emptyMessage").textContent = "Unable to load patients.";
+                document.getElementById("emptyMessage").style.display = "block";
+                return;
+            }
+
+            patients = response.data.data || [];
+            displayPatients();
+        }
+
+
+        loadPatients();
 
     </script>
 
 </body>
 </html>
-```
 

@@ -87,7 +87,12 @@ const getMe = async (req, res, next) => {
         const userId = req.user.userId;
 
         const [users] = await pool.execute(
-            'SELECT id, name, mobile, email, role, status FROM users WHERE id = ? LIMIT 1',
+            `SELECT u.id, u.name, u.mobile, u.email, u.role, u.status,
+                    p.patient_code AS patient_code
+             FROM users u
+             LEFT JOIN patients p ON p.user_id = u.id
+             WHERE u.id = ?
+             LIMIT 1`,
             [userId]
         );
 

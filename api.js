@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = 'http://127.0.0.1:5000';
 
 const api = {
     request: async (endpoint, options = {}) => {
@@ -21,7 +21,7 @@ const api = {
             const data = await response.json();
 
             // Handle token expiration globally
-            if (response.status === 401 && endpoint !== '/auth/login') {
+            if (response.status === 401 && endpoint !== '/api/auth/login') {
                 localStorage.removeItem('ayush_token');
                 localStorage.removeItem('ayush_user');
                 alert('Session expired or unauthorized. Please log in again.');
@@ -44,9 +44,69 @@ const api = {
 };
 
 function checkAuthGuard() {
-    // Basic frontend auth guard. The real security is on the backend.
-    const token = localStorage.getItem('ayush_token');
-    if (!token && window.location.pathname.indexOf('index.html') === -1) {
-        window.location.href = 'index.html';
+    const page = window.location.pathname.split('/').pop();
+    const doctorOnlyPages = [
+        'doctor-dashboard.html',
+        'patients.html',
+        'consultation.html',
+        'settings.html'
+    ];
+    const patientOnlyPages = [
+        'patient-dashboard.html',
+        'patient-appointments.html',
+        'patient-prescriptions.html',
+        'patient-reports.html'
+    ];
+    const sharedPatientDoctorPages = [
+        'appointments.html',
+        'prescriptions.html',
+        'reports.html'
+    ];
+
+    if (page === 'index.html' || page === '') {
+        return;
     }
+
+    document.documentElement.style.visibility = 'hidden';
+
+    const redirectToLogin = () => {
+        localStorage.removeItem('ayush_token');
+        localStorage.removeItem('ayush_user');
+        window.location.href = 'index.html';
+    };
+
+    const token = localStorage.getItem('ayush_token');
+    if (!token) {
+        redirectToLogin();
+        return;
+    }
+
+    api.get('/api/auth/me').then((response) => {
+        const user = response.data && response.data.data;
+        const authenticated = response.status === 200 && response.data.success && user;
+
+        if (!authenticated) {
+            redirectToLogin();
+            return;
+        }
+
+        let authorized = false;
+
+        if (doctorOnlyPages.includes(page)) {
+            authorized = user.role === 'Doctor';
+        } else if (patientOnlyPages.includes(page)) {
+            authorized = user.role === 'Patient';
+        } else if (sharedPatientDoctorPages.includes(page)) {
+            authorized = user.role === 'Doctor' || user.role === 'Patient';
+        }
+
+        if (!authorized) {
+            redirectToLogin();
+            return;
+        }
+
+        document.documentElement.style.visibility = '';
+    }).catch(() => {
+        redirectToLogin();
+    });
 }
